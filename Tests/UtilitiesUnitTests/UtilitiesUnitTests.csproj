@@ -67,13 +67,9 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="EnumHelperUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RetryHelperUnitTests.cs" />
-    <Compile Include="StringEnumHelperUnitTests.cs" />
     <Compile Include="SymlinkHelperUnitTests.cs" />
-    <Compile Include="TimeoutHelperUnitTests.cs" />
-    <Compile Include="WaitHandleHelperUnitTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ToolsAndLibraries\Utilities\Utilities.csproj">

@@ -255,51 +255,6 @@ namespace LazyCopy.Utilities.Native
 
         #endregion // kernel32.dll
 
-        #region mpr.dll
-
-        /// <summary>
-        /// Makes a connection to a network resource and can redirect a local device to the network resource.
-        /// </summary>
-        /// <param name="netResource">A pointer to a NETRESOURCE structure that specifies details of the proposed connection.</param>
-        /// <param name="password">
-        /// Password to be used in making the network connection.<br/>
-        /// If <paramref name="password"/> is <see langword="null"/>, the function uses the current default password
-        /// associated with the user specified by the <paramref name="username"/> parameter.<br/>
-        /// If <paramref name="password"/> points to an empty string, the function does not use a password.
-        /// </param>
-        /// <param name="username">
-        /// User name for making the connection.
-        /// If <paramref name="username"/> is <see langword="null"/>, the function uses the default user name.<br/>
-        /// The <paramref name="username"/> parameter is specified when users want to connect to a network resource for which
-        /// they have been assigned a user name or account other than the default user name or account.
-        /// </param>
-        /// <param name="flags">A set of connection options.</param>
-        /// <returns>If the function succeeds, the return value is <see cref="Ok"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA2101:SpecifyMarshalingForPInvokeStringArguments", MessageId = "1", Justification = "This method only supports ANSI.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA2101:SpecifyMarshalingForPInvokeStringArguments", MessageId = "2", Justification = "This method only supports ANSI.")]
-        [DllImport("mpr.dll", CharSet = CharSet.Ansi, SetLastError = true)]
-        internal static extern int WNetAddConnection2(
-            /* [in] */ ref NetResource netResource,
-            /* [in] */ [MarshalAs(UnmanagedType.LPStr)] string password,
-            /* [in] */ [MarshalAs(UnmanagedType.LPStr)] string username,
-            /* [in] */ uint flags);
-
-        /// <summary>
-        /// Cancels an existing network connection.
-        /// </summary>
-        /// <param name="name">The name of either the redirected local device or the remote network resource to disconnect from.</param>
-        /// <param name="flags">Connection type.</param>
-        /// <param name="force">Specifies whether the disconnection should occur if there are open files or jobs on the connection.</param>
-        /// <returns>If the function succeeds, the return value is <see cref="Ok"/>.</returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA2101:SpecifyMarshalingForPInvokeStringArguments", MessageId = "0", Justification = "This method only supports ANSI.")]
-        [DllImport("mpr.dll", CharSet = CharSet.Ansi, SetLastError = true)]
-        internal static extern int WNetCancelConnection2(
-            /* [in] */ [MarshalAs(UnmanagedType.LPStr)] string name,
-            /* [in] */ int flags,
-            /* [in] */ [MarshalAs(UnmanagedType.Bool)] bool force);
-
-        #endregion // mpr.dll
-
         #region user32.dll
 
         /// <summary>

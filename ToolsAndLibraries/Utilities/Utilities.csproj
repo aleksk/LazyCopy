@@ -134,41 +134,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollectionHelper.cs" />
-    <Compile Include="CompressionHelper.cs" />
-    <Compile Include="ConsoleHelper.cs" />
-    <Compile Include="ConsoleProgressReporter.cs" />
-    <Compile Include="ConsoleState.cs" />
-    <Compile Include="DateTimeHelper.cs" />
-    <Compile Include="DriveHelper.cs" />
-    <Compile Include="EnumHelper.cs" />
-    <Compile Include="IConsoleProgressReporter.cs" />
     <Compile Include="UserHelper.cs" />
     <Compile Include="Extensions\EventHandlerEx.cs" />
     <Compile Include="Extensions\LongPathFileInfoEx.cs" />
-    <Compile Include="Extensions\WaitHandleEx.cs" />
     <Compile Include="FileCopyHelper.cs" />
-    <Compile Include="Formatters\SizeFormatter.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Impersonator.cs" />
     <Compile Include="MarshalingHelper.cs" />
-    <Compile Include="MD5Helper.cs" />
     <Compile Include="Native\NativeData.cs" />
     <Compile Include="Native\NativeMethods.cs" />
     <Compile Include="Native\SafeTokenHandle.cs" />
-    <Compile Include="NetworkDrive.cs" />
     <Compile Include="PathHelper.cs" />
     <Compile Include="ProcessHelper.cs" />
     <Compile Include="ReparsePointHelper.cs" />
     <Compile Include="ResizableBuffer.cs" />
     <Compile Include="RetryHelper.cs" />
-    <Compile Include="StringEnumHelper.cs" />
-    <Compile Include="StringValueAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SymlinkHelper.cs" />
-    <Compile Include="TaskHelper.cs" />
     <Compile Include="TimeoutHelper.cs" />
-    <Compile Include="WaitHandleHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CustomDictionary.xml">
