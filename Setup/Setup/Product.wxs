@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The MIT License (MIT)
+
+    Copyright (c) 2015 Aleksey Kabanov
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<?include $(sys.CURRENTDIR)\Include\Config.wxi ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:netfx="http://schemas.microsoft.com/wix/NetFxExtension"
+     xmlns:difx="http://schemas.microsoft.com/wix/DifxAppExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+    <Product Id="*" Name="$(var.ProductName)" UpgradeCode="87AFCA74-C62B-46EE-B66F-C30E5331246F" Language="1033" Version="1.2.0" Manufacturer="$(var.CompanyName)">
+        <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" InstallPrivileges="elevated" Platform="$(var.Platform)" />
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+        <MediaTemplate EmbedCab="yes" />
+
+        <!--
+            Conditions.
+          -->
+
+        <Condition Message="You need to be an administrator to install this product.">
+            <![CDATA[Privileged]]>
+        </Condition>
+
+        <Condition Message='This application is only supported on Windows Server 2012, Windows 8, or higher.'>
+            <![CDATA[Installed OR (VersionNT >= 602)]]>
+        </Condition>
+
+        <!--
+            Properties.
+          -->
+
+        <Icon Id="icon.ico" SourceFile="$(var.SolutionDir)icon.ico"/>
+
+        <Property Id="ARPPRODUCTICON" Value="icon.ico"/>
+
+        <Property Id="INSTALLLOCATION">
+            <RegistrySearch Id="InstallLocationRegistrySearch" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\LazyCopy" Name="InstallLocation" Win64="$(var.Win64)"/>
+        </Property>
+
+        <Property Id="APPDATALOCATION">
+            <RegistrySearch Id="AppDataLocationRegistrySearch" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\LazyCopy" Name="AppDataLocation" Win64="$(var.Win64)"/>
+        </Property>
+
+        <!--
+            Features.
+          -->
+
+        <Feature Id="ProductFeature" Title="LazyCopy" Level="1" AllowAdvertise="no" InstallDefault="local">
+            <ComponentGroupRef Id="RegistryEntries"/>
+
+            <ComponentGroupRef Id="ThirdParties" />
+            <ComponentGroupRef Id="Libraries" />
+
+            <ComponentGroupRef Id="LazyCopyDriver"/>
+            <ComponentGroupRef Id="WindowsService"/>
+        </Feature>
+
+        <!--
+            User Interface.
+          -->
+
+        <UI>
+            <UIRef Id="WixUI_Minimal" />
+            <UIRef Id="WixUI_ErrorProgressText" />
+
+            <Property Id="WixUILicenseRtf" Value="$(sys.CURRENTDIR)\License.rtf" />
+        </UI>
+    </Product>
+
+</Wix>

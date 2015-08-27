@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>3.6</ProductVersion>
+    <ProjectGuid>45fcb8e9-1ebe-4009-be71-eb1287b374c9</ProjectGuid>
+    <SchemaVersion>2.0</SchemaVersion>
+    <OutputName>LazyCopySetup</OutputName>
+    <OutputType>Package</OutputType>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' AND '$(MSBuildExtensionsPath32)' != '' ">$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
+    <SccProjectName>$/LazyCopy/src/Setup/Setup</SccProjectName>
+    <SccProvider>{4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}</SccProvider>
+    <SccAuxPath>http://vstfcodebox:8080/tfs/theta</SccAuxPath>
+    <SccLocalPath>.</SccLocalPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <OutputPath>..\..\bin\Setup\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <OutputPath>..\..\bin\Setup\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
+    <OutputPath>..\..\bin\Setup\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    <OutputPath>..\..\bin\Setup\$(Platform)\$(Configuration)\</OutputPath>
+    <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="InstallLocations.wxs" />
+    <Compile Include="Registry.wxs" />
+    <Compile Include="ThirdParties.wxs" />
+    <Compile Include="LazyCopyDriver.wxs" />
+    <Compile Include="ToolsAndLibraries.wxs" />
+    <Compile Include="Product.wxs" />
+    <Compile Include="WindowsService.wxs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Driver\DriverClientLibrary\DriverClientLibrary.csproj">
+      <Name>DriverClientLibrary</Name>
+      <Project>{f0f6d412-32f7-494e-89f1-02fb73355204}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Driver\LazyCopyDriverClient\LazyCopyDriverClient.csproj">
+      <Name>LazyCopyDriverClient</Name>
+      <Project>{4a6eb8ca-b376-4bfe-bab0-0e311b5507ac}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Driver\LazyCopyDriverInstall\LazyCopyDriverInstall.vcxproj">
+      <Name>LazyCopyDriverInstall</Name>
+      <Project>{f94d238e-21ca-47df-a5a5-9eb0162f30fd}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Service\LazyCopySvc\LazyCopySvc.csproj">
+      <Name>LazyCopySvc</Name>
+      <Project>{9ebe4445-3678-4c54-bea4-35e7fe219b79}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ToolsAndLibraries\EventTracing\EventTracing.csproj">
+      <Name>EventTracing</Name>
+      <Project>{c80a3b72-e9d6-43e9-a92b-f58cc61eb8ff}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ToolsAndLibraries\SampleClient\SampleClient.csproj">
+      <Name>SampleClient</Name>
+      <Project>{7b8e9d8d-ad2e-4e23-be6c-317dd117a16a}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ToolsAndLibraries\Utilities\Utilities.csproj">
+      <Name>Utilities</Name>
+      <Project>{0c122c40-d262-4daf-9f61-e9ec08047d61}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Include\Config.wxi" />
+    <Content Include="License.rtf">
+      <Link>License.rtf</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Include" />
+  </ItemGroup>
+  <ItemGroup>
+    <WixLibrary Include="difxapp_x64">
+      <HintPath>C:\Program Files (x86)\WiX Toolset v3.8\bin\difxapp_x64.wixlib</HintPath>
+      <Name>difxapp_x64</Name>
+    </WixLibrary>
+  </ItemGroup>
+  <ItemGroup>
+    <WixExtension Include="WixUtilExtension">
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
+      <Name>WixUtilExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixUIExtension">
+      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
+      <Name>WixUIExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixNetFxExtension">
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
+      <Name>WixNetFxExtension</Name>
+    </WixExtension>
+    <WixExtension Include="WixDifxAppExtension">
+      <HintPath>$(WixExtDir)\WixDifxAppExtension.dll</HintPath>
+      <Name>WixDifxAppExtension</Name>
+    </WixExtension>
+  </ItemGroup>
+  <Import Project="$(WixTargetsPath)" />
+  <PropertyGroup>
+    <PostBuildEvent />
+  </PropertyGroup>
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	Other similar extension points exist, see Wix.targets.
+	<Target Name="BeforeBuild">
+	</Target>
+	<Target Name="AfterBuild">
+	</Target>
+	-->
+</Project>

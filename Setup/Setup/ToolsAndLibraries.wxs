@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The MIT License (MIT)
+
+    Copyright (c) 2015 Aleksey Kabanov
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<?include $(sys.CURRENTDIR)\Include\Config.wxi ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+    <Fragment>
+        <ComponentGroup Id="Libraries" Directory="INSTALLLOCATION">
+            <Component Id="DriverClient" Guid="BCE6DDC0-E7B9-4293-A7A9-E0A1BD12CD26" Win64="$(var.Win64)">
+                <File Id="LazyCopy.DriverClient.dll" DiskId="1" Source="$(var.BINPATH)\DriverClient\LazyCopy.DriverClient.dll" KeyPath="yes"/>
+            </Component>
+
+            <Component Id="DriverClientLibrary" Guid="910E0EF3-8810-4D61-AC0A-034721431623" Win64="$(var.Win64)">
+                <File Id="LazyCopy.DriverClientLibrary.dll" DiskId="1" Source="$(var.BINPATH)\DriverClientLibrary\LazyCopy.DriverClientLibrary.dll" KeyPath="yes"/>
+            </Component>
+
+            <Component Id="EventTracing" Guid="497765B2-65AB-448B-BB29-56DB91C87404" Win64="$(var.Win64)">
+                <File Id="LazyCopy.EventTracing.dll" DiskId="1" Source="$(var.BINPATH)\EventTracing\LazyCopy.EventTracing.dll" KeyPath="yes"/>
+            </Component>
+
+              <Component Id="SampleClient" Guid="7381794A-5927-43B1-A857-3B6451CB5A3C" Win64="$(var.Win64)">
+                <File Id="SampleClient.exe"        DiskId="1" Source="$(var.BINPATH)\SampleClient\SampleClient.exe"        KeyPath="yes"/>
+                <File Id="SampleClient.exe.config" DiskId="1" Source="$(var.BINPATH)\SampleClient\SampleClient.exe.config" KeyPath="no"/>
+            </Component>
+
+            <Component Id="Utilities" Guid="88EA9B65-FBE7-4DC7-AFCF-3EAF30E89742" Win64="$(var.Win64)">
+                <File Id="LazyCopy.Utilities.dll" DiskId="1" Source="$(var.BINPATH)\Utilities\LazyCopy.Utilities.dll" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+</Wix>

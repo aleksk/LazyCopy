@@ -1,0 +1,121 @@
+﻿;;;
+;;; LazyCopy Driver.
+;;;
+;;; The MIT License (MIT)
+;;;
+;;; Copyright (c) 2015 Aleksey Kabanov
+;;;
+;;; Permission is hereby granted, free of charge, to any person obtaining a copy
+;;; of this software and associated documentation files (the "Software"), to deal
+;;; in the Software without restriction, including without limitation the rights
+;;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+;;; copies of the Software, and to permit persons to whom the Software is
+;;; furnished to do so, subject to the following conditions:
+;;;
+;;; The above copyright notice and this permission notice shall be included in
+;;; all copies or substantial portions of the Software.
+;;;
+;;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+;;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+;;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+;;; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+;;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+;;; THE SOFTWARE.
+;;;
+
+[Version]
+Signature         = "$Windows NT$"
+Class             = "ActivityMonitor"
+ClassGuid         = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
+Provider          = %ManufacturerName%
+DriverPackageType = FileSystemMinifilter
+DriverVer         = 05/9/2014,1.2.3.4
+CatalogFile       = LazyCopyDriver.cat
+
+[DestinationDirs]
+DefaultDestDir         = 12
+MiniFilter.DriverFiles = 12    ; %windir%\system32\drivers
+
+;;
+;; Copy files sections.
+;;
+
+[MiniFilter.DriverFiles]
+%DriverName%.sys
+
+[SourceDisksFiles]
+LazyCopyDriver.sys = 1,,
+
+[SourceDisksNames]
+1 = %DiskId1%,,,
+
+;;
+;; Default install sections.
+;;
+
+[DefaultInstall]
+OptionDesc    = %ServiceDescription%
+CopyFiles     = MiniFilter.DriverFiles
+
+[DefaultInstall.Services]
+AddService    = %ServiceName%,,MiniFilter.Service
+
+;;
+;; Default uninstall sections.
+;;
+
+[DefaultUninstall]
+DelFiles      = MiniFilter.DriverFiles
+DelReg        = MiniFilter.Registry
+
+[DefaultUninstall.Services]
+DelService    = %ServiceName%,0x200    ; Ensure service is stopped before deleting.
+
+;;
+;; Services sections.
+;;
+
+[MiniFilter.Service]
+DisplayName      = %ServiceName%
+Description      = %ServiceDescription%
+ServiceBinary    = %12%\%DriverName%.sys          ; %windir%\system32\drivers\
+Dependencies     = FltMgr
+ServiceType      = 2                              ; SERVICE_FILE_SYSTEM_DRIVER
+StartType        = 1                              ; SERVICE_SYSTEM_START
+ErrorControl     = 1                              ; SERVICE_ERROR_NORMAL
+LoadOrderGroup   = "FSFilter Activity Monitor"
+AddReg           = MiniFilter.Registry
+
+;;
+;; Registry modification sections.
+;;
+
+[MiniFilter.Registry]
+HKR,,"DebugFlags",0x00010001,0x0
+HKR,,"SupportedFeatures",0x00010001,0x3
+HKR,"Instances","DefaultInstance",0x00000000,%DefaultInstance%
+HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
+HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
+
+; Driver-specific keys.
+HKR,,"OperationMode",0x00010001,0x1  ; REG_DWORD
+HKR,,"ReportRate",0x00010001,0x2710  ; REG_DWORD
+HKR,,"WatchPaths",0x00010000,""      ; REG_MULTI_SZ
+
+;;
+;; String sections.
+;;
+
+[Strings]
+ManufacturerName      = "Unknown Manufacturer"
+ServiceDescription    = "Driver for fetching files lazily from the remote source"
+ServiceName           = "LazyCopyDriver"
+DriverName            = "LazyCopyDriver"
+DiskId1               = "LazyCopy Driver Installation Disk"
+
+; Instances-specific information.
+DefaultInstance       = "LazyCopyDriver"
+Instance1.Name        = "LazyCopyDriver"
+Instance1.Altitude    = "370021"    ; Before going to production, make sure you contact Microsoft to register your driver and get this value.
+Instance1.Flags       = 0x0         ; Automatically attach.

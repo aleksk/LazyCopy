@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The MIT License (MIT)
+
+    Copyright (c) 2015 Aleksey Kabanov
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<?include $(sys.CURRENTDIR)\Include\Config.wxi ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+
+    <Fragment>
+        <ComponentGroup Id="ThirdParties" Directory="INSTALLLOCATION">
+            <Component Id="LongPath" Guid="3B9ABE19-80DC-45F2-BD86-C63301F01E63" Win64="$(var.Win64)">
+                <File Id="LongPath.dll" DiskId="1" Source="$(var.BINPATH)\DriverClient\LongPath.dll" KeyPath="yes"/>
+            </Component>
+
+            <Component Id="Microsoft.Diagnostics.Tracing.TraceEvent" Guid="2A90EFDC-086C-422D-89CC-70BA143D586E" Win64="$(var.Win64)">
+                <File Id="Microsoft.Diagnostics.Tracing.TraceEvent.dll" DiskId="1" Source="$(var.BINPATH)\EventTracing\Microsoft.Diagnostics.Tracing.TraceEvent.dll" KeyPath="yes"/>
+
+                <?if $(var.Platform) = x64?>
+                    <File Id="KernelTraceControl.dll" DiskId="1" Source="$(var.BINPATH)\EventTracing\amd64\KernelTraceControl.dll" KeyPath="no"/>
+                    <File Id="msdia120.dll" DiskId="1" Source="$(var.BINPATH)\EventTracing\amd64\msdia120.dll" KeyPath="no"/>
+                <?else?>
+                    <File Id="KernelTraceControl.dll" DiskId="1" Source="$(var.BINPATH)\EventTracing\x86\KernelTraceControl.dll" KeyPath="no"/>
+                    <File Id="msdia120.dll" DiskId="1" Source="$(var.BINPATH)\EventTracing\x86\msdia120.dll" KeyPath="no"/>
+                <?endif?>
+            </Component>
+
+            <Component Id="NLog" Guid="39EF20DF-0D5D-47CB-9E5B-B666414A7937" Win64="$(var.Win64)">
+                <File Id="NLog.dll" DiskId="1" Source="$(var.BINPATH)\DriverClient\NLog.dll" KeyPath="yes"/>
+            </Component>
+
+            <Component Id="ProcessPrivileges" Guid="523DD7A8-4927-4F08-AC93-38B6A8FF8DB9" Win64="$(var.Win64)">
+                <File Id="ProcessPrivileges.dll" DiskId="1" Source="$(var.BINPATH)\DriverClient\ProcessPrivileges.dll" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+</Wix>

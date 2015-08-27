@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="Communication.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="LazyCopyDriver.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="RegistrationData.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utilities.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Configuration.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Registry.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileLocks.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Operations.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="ReparsePoints.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Fetch.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Communication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyCopyDriver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Macro.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Configuration.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Globals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CommunicationData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Registry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileLocks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LazyCopyEtw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ReparsePoints.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Context.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Fetch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{3b913ded-eb73-4b29-bbe5-774d35349be6}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{627f46e0-989f-4a1f-91d0-f7364d7321b5}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{bd5c5fa8-964c-49e7-9ad1-628f77bd806b}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Driver Files">
+      <UniqueIdentifier>{68a25cbc-feb8-4e32-b73d-437db60fb302}</UniqueIdentifier>
+      <Extensions>inf;inv;inx;mof;mc;xml</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LazyCopyEtw.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="LazyCopyEtw.mc">
+      <Filter>Driver Files</Filter>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Inf Include="LazyCopyDriver.inf">
+      <Filter>Driver Files</Filter>
+    </Inf>
+  </ItemGroup>
+</Project>

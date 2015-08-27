@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The MIT License (MIT)
+
+    Copyright (c) 2015 Aleksey Kabanov
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<?include $(sys.CURRENTDIR)\Include\Config.wxi ?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+    <Fragment>
+        <ComponentGroup Id="WindowsService" Directory="INSTALLLOCATION">
+            <Component Id="LazyCopySvc.exe.config" Guid="774AF3F0-A8AF-4B9C-B66B-DCE932C67812" Win64="$(var.Win64)">
+                <File Id="LazyCopySvc.exe.config" DiskId="1" Source="$(var.BINPATH)\LazyCopySvc\LazyCopySvc.exe.config" KeyPath="yes"/>
+            </Component>
+
+            <Component Id="LazyCopySvc.exe" Guid="3A1EB426-03DE-485F-AD3A-435E59870E4D" Win64="$(var.Win64)">
+                <File Id="LazyCopySvc.exe" DiskId="1" Source="$(var.BINPATH)\LazyCopySvc\LazyCopySvc.exe" KeyPath="yes" Checksum="yes"/>
+
+                <CreateFolder Directory="APPDATALOCATION">
+                    <Permission GenericAll="yes" User="Everyone"/>
+                </CreateFolder>
+
+                <util:RemoveFolderEx Id="RemoveAppDataFolder" On="uninstall" Property="APPDATALOCATION"/>
+
+                <ServiceInstall Id="ServiceInstaller"
+                                Name="LazyCopySvc"
+                                Description="Performs additional tasks for the LazyCopy driver."
+                                DisplayName="LazyCopy"
+                                Account="LocalSystem"
+                                Type="ownProcess"
+                                Start="auto"
+                                ErrorControl="normal"
+                                Vital="yes"
+                                Interactive="no">
+                    <util:ServiceConfig FirstFailureActionType="restart" SecondFailureActionType="none" ThirdFailureActionType="none"/>
+                </ServiceInstall>
+
+                <ServiceControl Id="StartService" Name="LazyCopySvc" Start="install" Stop="both" Remove="uninstall" Wait="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+</Wix>

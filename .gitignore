@@ -137,11 +137,15 @@ publish/
 # NuGet Packages
 *.nupkg
 # The packages folder can be ignored because of Package Restore
-**/packages/*
+# **/packages/* - doesn't work in the latest VS2015.
+/packages/*
 # except build/, which is used as an MSBuild target.
-!**/packages/build/
+!/packages/build/
+# and 3rd party libraries that don't have NuGet packages
+!/packages/longpath/
+!/packages/processprivileges/
 # Uncomment if necessary however generally it will be regenerated when needed
-#!**/packages/repositories.config
+#!/packages/repositories.config
 
 # Windows Azure Build Output
 csx/

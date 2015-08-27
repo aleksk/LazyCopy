@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Win10 Debug|Win32">
+      <Configuration>Win10 Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win10 Debug|x64">
+      <Configuration>Win10 Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win10 Release|Win32">
+      <Configuration>Win10 Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Win10 Release|x64">
+      <Configuration>Win10 Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Configuration.c" />
+    <ClCompile Include="Communication.c" />
+    <ClCompile Include="Fetch.c" />
+    <ClCompile Include="Operations.c" />
+    <ClCompile Include="Context.c" />
+    <ClCompile Include="FileLocks.c" />
+    <ClCompile Include="Registry.c" />
+    <ClCompile Include="ReparsePoints.c" />
+    <ClCompile Include="Utilities.c" />
+    <ClCompile Include="RegistrationData.c" />
+    <ClCompile Include="LazyCopyDriver.c" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{13AD5622-8B1C-47F5-9062-A0ACB26576DD}</ProjectGuid>
+    <TemplateGuid>{f2f62967-0815-4fd7-9b86-6eedcac766eb}</TemplateGuid>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <MinimumVisualStudioVersion>12.0</MinimumVisualStudioVersion>
+    <Configuration>Win10 Debug</Configuration>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <CodeAnalysisRuleSet>..\..\RuleSet.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DiagnosticMode>true</DiagnosticMode>
+    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <RootNamespace>LazyCopy</RootNamespace>
+    <VCTargetsPath Condition="'$(VCTargetsPath11)' != '' and '$(VisualStudioVersion)' == '11.0'">$(VCTargetsPath11)</VCTargetsPath>
+    <ProjectName>LazyCopyDriver</ProjectName>
+    <SccProjectName>SAK</SccProjectName>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.10240.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <PropertyGroup Label="PropertySheets">
+    <ConfigurationType>Driver</ConfigurationType>
+    <DriverType>WDM</DriverType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <OutDir>
+    </OutDir>
+    <IntDir>bin\$(Platform)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Win10 Release|x64'">
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Win10 Release|Win32'">
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Win10 Debug|Win32'">
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Win10 Debug|x64'">
+    <PlatformToolset>WindowsKernelModeDriver10.0</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <DebuggerFlavor>DbgengKernelDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>$(DDK_LIB_PATH)\fltmgr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions Condition="'$(Configuration)|$(Platform)'=='Win8 Release|x64'">/integritycheck %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <ClCompile>
+      <EnablePREfast>true</EnablePREfast>
+      <SDLCheck>true</SDLCheck>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+    </ClCompile>
+    <DriverSign>
+      <FileDigestAlgorithm>SHA1</FileDigestAlgorithm>
+    </DriverSign>
+    <Inf>
+      <CatalogFileName>LazyCopyDriver.cat</CatalogFileName>
+    </Inf>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <FilesToPackage Include="$(TargetPath)">
+      <PackageRelativeDirectory>
+      </PackageRelativeDirectory>
+    </FilesToPackage>
+    <FilesToPackage Include="@(Inf->'%(CopyOutput)')" Condition="'@(Inf)'!=''">
+      <PackageRelativeDirectory>
+      </PackageRelativeDirectory>
+    </FilesToPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Communication.h" />
+    <ClInclude Include="CommunicationData.h" />
+    <ClInclude Include="Configuration.h" />
+    <ClInclude Include="Context.h" />
+    <ClInclude Include="Fetch.h" />
+    <ClInclude Include="FileLocks.h" />
+    <ClInclude Include="LazyCopyDriver.h" />
+    <ClInclude Include="Globals.h" />
+    <ClInclude Include="LazyCopyEtw.h" />
+    <ClInclude Include="Macro.h" />
+    <ClInclude Include="Registry.h" />
+    <ClInclude Include="ReparsePoints.h" />
+    <ClInclude Include="Utilities.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="LazyCopyEtw.mc">
+      <FileType>Document</FileType>
+      <ExcludedFromBuild>false</ExcludedFromBuild>
+      <DeploymentContent>true</DeploymentContent>
+    </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="LazyCopyEtw.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Inf Include="LazyCopyDriver.inf" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
