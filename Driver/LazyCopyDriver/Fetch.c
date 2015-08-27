@@ -467,14 +467,9 @@ Summary:
 
     With this approach, [R] will fill chunks [1]->[2]->[3]->[1]->[4], and write will
     write them in the same order.
-    As you can see, allocating a new chunk before the next filled chunk (if the amount
-    of chunks is lesser than the 'MaxChunks') makes sure that the data is written sequentially,
+    I.e. allocating a new chunk before the next filled chunk (if the amount of chunks
+    is lesser than the 'MaxChunks') makes sure that the data is written sequentially,
     and there is no need to constantly seek in the file.
-
-    It worth mentioning that files are not read and written in multiple threads. FileObject is
-    single-threaded, and in order to use multiple threads to write into the same file, it should
-    be opened again, and this operation might be too expensive. Makes sense to do it for very
-    large files, but spawning many threads is not a very good idea.
 
 Arguments:
 
