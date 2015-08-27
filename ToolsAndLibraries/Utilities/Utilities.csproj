@@ -151,7 +151,6 @@
     <Compile Include="RetryHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SymlinkHelper.cs" />
-    <Compile Include="TimeoutHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="..\..\CustomDictionary.xml">
