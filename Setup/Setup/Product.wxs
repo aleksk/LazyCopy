@@ -53,6 +53,7 @@
         <Icon Id="icon.ico" SourceFile="$(var.SolutionDir)icon.ico"/>
 
         <Property Id="ARPPRODUCTICON" Value="icon.ico"/>
+		<WixVariable Id="WixUILicenseRtf" Value="License.rtf"/>
 
         <Property Id="INSTALLLOCATION">
             <RegistrySearch Id="InstallLocationRegistrySearch" Type="raw" Root="HKLM" Key="SOFTWARE\Microsoft\LazyCopy" Name="InstallLocation" Win64="$(var.Win64)"/>
@@ -83,8 +84,6 @@
         <UI>
             <UIRef Id="WixUI_Minimal" />
             <UIRef Id="WixUI_ErrorProgressText" />
-
-            <Property Id="WixUILicenseRtf" Value="$(sys.CURRENTDIR)\License.rtf" />
         </UI>
     </Product>
 
