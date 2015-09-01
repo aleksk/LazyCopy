@@ -55,7 +55,7 @@ Create an empty file that will be fetched on the first access:
 bin\SampleClient\SampleClient.exe <original file> <new empty file>
 ```
 
-Getting official
+Going official
 -------
 
 * [Obtain](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) the code signing certificate. This will take some time.
