@@ -69,7 +69,7 @@ signtool sign /v /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\V
 ```
 * Contact Microsoft and get the following values:
   - [LC_REPARSE_TAG](Driver/LazyCopyDriver/Globals.h)
-  - [LC_REPARSE_GUID](Driver/LazyCopyDriver/LazyCopyDriver.c) - from [here]((https://msdn.microsoft.com/en-us/library/windows/hardware/dn641624(v=vs.85).aspx))
+  - [LC_REPARSE_GUID](Driver/LazyCopyDriver/LazyCopyDriver.c) - from [here](https://msdn.microsoft.com/en-us/library/windows/hardware/dn641624(v=vs.85).aspx)
   - [Instance1.Altitude](Driver/LazyCopyDriver/LazyCopyDriver.inf) - from [here](https://msdn.microsoft.com/en-us/library/windows/hardware/dn508284(v=vs.85).aspx)
 * Change those vlaues in the client code:
   - [LazyCopyFileHelper.cs](Driver/LazyCopyDriverClient/LazyCopyFileHelper.cs)
