@@ -515,16 +515,16 @@ namespace LazyCopy.DriverClientLibrary
                 if (aggregateInfo.Flags == FilterAggregateStandardInformation.FltflAsiIsMinifilter)
                 {
                     FilterAggregateStandardMiniFilterInformation info = (FilterAggregateStandardMiniFilterInformation)Marshal.PtrToStructure(infoPtr, typeof(FilterAggregateStandardMiniFilterInformation));
-                    filterInfo.FrameId = unchecked((int)info.FrameId);
+                    filterInfo.FrameId   = unchecked((int)info.FrameId);
                     filterInfo.Instances = unchecked((int)info.NumberOfInstances);
 
-                    filterInfo.Name = Marshal.PtrToStringUni(curPtr + info.FilterNameBufferOffset, info.FilterNameLength / UnicodeEncoding.CharSize);
+                    filterInfo.Name     = Marshal.PtrToStringUni(curPtr + info.FilterNameBufferOffset, info.FilterNameLength / UnicodeEncoding.CharSize);
                     filterInfo.Altitude = int.Parse(Marshal.PtrToStringUni(curPtr + info.FilterAltitudeBufferOffset, info.FilterAltitudeLength / UnicodeEncoding.CharSize), NumberStyles.Integer, CultureInfo.InvariantCulture);
                 }
                 else if (aggregateInfo.Flags == FilterAggregateStandardInformation.FltflAsiIsLegacyfilter)
                 {
                     FilterAggregateStandardLegacyFilterInformation info = (FilterAggregateStandardLegacyFilterInformation)Marshal.PtrToStructure(infoPtr, typeof(FilterAggregateStandardLegacyFilterInformation));
-                    filterInfo.Name = Marshal.PtrToStringUni(curPtr + info.FilterNameBufferOffset, info.FilterNameLength / UnicodeEncoding.CharSize);
+                    filterInfo.Name     = Marshal.PtrToStringUni(curPtr + info.FilterNameBufferOffset, info.FilterNameLength / UnicodeEncoding.CharSize);
                     filterInfo.Altitude = int.Parse(Marshal.PtrToStringUni(curPtr + info.FilterAltitudeBufferOffset, info.FilterAltitudeLength / UnicodeEncoding.CharSize), NumberStyles.Integer, CultureInfo.InvariantCulture);
                 }
                 else
