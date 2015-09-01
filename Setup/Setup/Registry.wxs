@@ -28,8 +28,8 @@
     <Fragment>
         <ComponentGroup Id="RegistryEntries" Directory="INSTALLLOCATION">
             <Component Id="InstallationParameters" Guid="116453BE-B902-4822-B0CF-9BF4EA5B7D94" Win64="$(var.Win64)">
-                <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\LazyCopy">
-                    <RegistryValue Name="InstallLocation"  Value="[INSTALLLOCATION]" Type="string" KeyPath="yes"/>
+                <RegistryKey Root="HKLM" Key="SOFTWARE\$(var.CompanyName)\LazyCopy">
+                    <RegistryValue Name="InstallLocation" Value="[INSTALLLOCATION]" Type="string" KeyPath="yes"/>
                     <RegistryValue Name="AppDataLocation" Value="[APPDATALOCATION]" Type="string"/>
                 </RegistryKey>
             </Component>
