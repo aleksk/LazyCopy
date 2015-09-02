@@ -58,8 +58,9 @@ bin\SampleClient\SampleClient.exe <original file> <new empty file>
 Going official
 -------
 
-* [Obtain](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) the code signing certificate. This will take some time.
 * Change the [name](Driver/LazyCopyDriver/LazyCopyDriver.inf) of the driver and rename binaries.
+* Generate a new GUID for the [ETW provider](Driver/LazyCopyDriver/LazyCopyEtw.mc) and re-create header: `mc.exe -z LazyCopyEtw -n -km LazyCopyEtw.mc`.
+* [Obtain](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) a code signing certificate.
 * Sign the driver and, optionally, other binaries.
    For example, if you purchased a Symantec certificate, you can use the following command to sign the driver in the post-build step:
 ```
@@ -68,8 +69,7 @@ signtool sign /v /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\V
 signtool sign /v /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\VRSN_C3_PCA_G5_Root_CA_Cross.cer" /s my /n "<YOUR NAME>" /t http://timestamp.verisign.com/scripts/timestamp.dll /sha1 "<YOUR CERT THUMBNAIL>" "$(TargetPath)\LazyCopyDriver.cat"
 ```
 * Contact Microsoft and get the following values:
-  - [LC_REPARSE_TAG](Driver/LazyCopyDriver/Globals.h)
   - [LC_REPARSE_GUID](Driver/LazyCopyDriver/LazyCopyDriver.c) - from [here](https://msdn.microsoft.com/en-us/library/windows/hardware/dn641624(v=vs.85).aspx)
   - [Instance1.Altitude](Driver/LazyCopyDriver/LazyCopyDriver.inf) - from [here](https://msdn.microsoft.com/en-us/library/windows/hardware/dn508284(v=vs.85).aspx)
-* Change those vlaues in the client code:
-  - [LazyCopyFileHelper.cs](Driver/LazyCopyDriverClient/LazyCopyFileHelper.cs)
+* Change those values in the client code: [LazyCopyFileHelper.cs](Driver/LazyCopyDriverClient/LazyCopyFileHelper.cs).
+* Optionally change the reparse point tag: [LC_REPARSE_TAG](Driver/LazyCopyDriver/Globals.h).
