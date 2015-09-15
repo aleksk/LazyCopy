@@ -117,5 +117,5 @@ DiskId1               = "LazyCopy Driver Installation Disk"
 ; Instances-specific information.
 DefaultInstance       = "LazyCopyDriver"
 Instance1.Name        = "LazyCopyDriver"
-Instance1.Altitude    = "370021"    ; Before going to production, make sure you contact Microsoft to register your driver and get this value.
+Instance1.Altitude    = "180610"    ; Before going to production, make sure you contact Microsoft to register your driver and get this value.
 Instance1.Flags       = 0x0         ; Automatically attach.

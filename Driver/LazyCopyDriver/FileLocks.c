@@ -54,14 +54,15 @@ Environment:
 //
 typedef struct _FILE_LOCK_ENTRY
 {
+    // Reference count for this entry.
+    // NOTE: Make sure it's 32-bit aligned, so Interlocked operations actually work.
+    __volatile LONG RefCount;
+
     // Path to the locked file.
     UNICODE_STRING  FileName;
 
     // Event object to synchronize on.
     KEVENT          Event;
-
-    // Reference count for this entry.
-    __volatile LONG RefCount;
 
     LIST_ENTRY      ListEntry;
 } FILE_LOCK_ENTRY, *PFILE_LOCK_ENTRY;
@@ -238,7 +239,7 @@ Return value:
             InsertHeadList(&FileLocksList, &fileLockEntry->ListEntry);
         }
 
-        fileLockEntry->RefCount++;
+        InterlockedIncrement(&fileLockEntry->RefCount);
 
         *Event = &fileLockEntry->Event;
     }
@@ -303,10 +304,10 @@ Return value:
             if (&fileLockEntry->Event == Event)
             {
                 // Decrease the reference count and remove the list entry, if it reaches zero.
-                fileLockEntry->RefCount--;
-                FLT_ASSERT(fileLockEntry->RefCount >= 0);
+                LONG refCount = InterlockedDecrement(&fileLockEntry->RefCount);
+                FLT_ASSERT(refCount >= 0);
 
-                if (fileLockEntry->RefCount <= 0)
+                if (refCount == 0)
                 {
                     RemoveEntryList(listEntry);
 
