@@ -68,18 +68,13 @@ Driver signing
 -------
 
 * [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) a code signing certificate.
+* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/dn170454(v=vs.85).aspx) the cross-certificate. For example, you may want to use the [VeriSign Cross-Certificate](http://go.microsoft.com/fwlink/p/?linkid=321787).
 * Sign the driver and, optionally, other binaries.
-   For example, if you purchased a Symantec certificate, you can use the following command to sign the driver in the post-build step:
+   For example, if you purchased a VeriSign certificate, you can use the following command to sign the driver in the post-build step:
 ```
-signtool sign /v /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\VRSN_C3_PCA_G5_Root_CA_Cross.cer" /s my /n "<YOUR_CERT_NAME>" /t http://timestamp.verisign.com/scripts/timestamp.dll /sha1 "<YOUR_CERT_THUMBNAIL>" "$(TargetPath)\LazyCopyDriver.sys"
+signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
 &
-signtool sign /v /ac "C:\Program Files (x86)\Windows Kits\10\CrossCertificates\VRSN_C3_PCA_G5_Root_CA_Cross.cer" /s my /n "<YOUR_CERT_NAME>" /t http://timestamp.verisign.com/scripts/timestamp.dll /sha1 "<YOUR_CERT_THUMBNAIL>" "$(TargetPath)\LazyCopyDriver.cat"
-```
-Alternatively, you can try to sign without the cross-certificates:
-```
-signtool sign /v /s my /n "<YOUR_CERT_NAME>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
-&
-signtool sign /v /s my /n "<YOUR_CERT_NAME>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.cat"
+signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.cat"
 ```
 Want to reuse the project files?
 -------
