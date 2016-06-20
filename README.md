@@ -76,6 +76,10 @@ signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH
 &
 signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.cat"
 ```
+For example:
+```
+signtool sign /v /s my /n "Contoso Org" /sha1 "ACAE8FE867A99F7701BE7F9D3BBDFBB230233386" /ac "VeriSign_Cross_Sign.cer" /t http://timestamp.verisign.com/scripts/timestamp.dll "LazyCopyDriver.sys"
+```
 Want to reuse the project files?
 -------
 
