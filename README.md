@@ -36,7 +36,7 @@ Installation
    1. Open CMD as Admin and type: `bcdedit -set TESTSIGNING ON` ([info](https://msdn.microsoft.com/en-us/library/windows/hardware/ff553484(v=vs.85).aspx)).
    2. Reboot. This will allow Windows to load drivers signed with the test certificates.
 * Compile the entire solution in the Visual Studio for your architecture. Make sure to choose the valid `Target Platform Version` in the `LazyCopyDriver` project settings.
-* You can [manually install](https://msdn.microsoft.com/en-us/library/windows/hardware/ff553484(v=vs.85).aspx) the driver by right clicking on the `.inf` file and choosing `Install`.
+* You can manually install the driver by right clicking on the `.inf` file and choosing `Install`.
 * Check that LazyCopyDriver appeared in the `fltmc` command output.
 <br/>Refer to the [MSDN](https://msdn.microsoft.com/en-us/library/windows/hardware/ff548166(v=vs.85).aspx) for additional information.
 <br/>From the Admin CMD:
