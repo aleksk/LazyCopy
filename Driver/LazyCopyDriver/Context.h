@@ -55,6 +55,9 @@ Environment:
 //
 typedef struct _STREAM_CONTEXT
 {
+    // Whether the file should be fetched by the user-mode client.
+    BOOLEAN        UseCustomHandler;
+
     // Size of the remote file.
     LARGE_INTEGER  RemoteFileSize;
 
@@ -85,6 +88,7 @@ LcFindOrCreateStreamContext (
     _When_(CreateIfNotFound,  _In_)
     _When_(!CreateIfNotFound, _In_opt_)
               PUNICODE_STRING     RemoteFilePath,
+    _In_      BOOLEAN             UseCustomHandler,
     _Outptr_  PLC_STREAM_CONTEXT* StreamContext,
     _Out_opt_ PBOOLEAN            ContextCreated
     );
@@ -94,6 +98,7 @@ NTSTATUS
 LcCreateStreamContext (
     _In_     PLARGE_INTEGER      RemoteFileSize,
     _In_     PUNICODE_STRING     RemoteFilePath,
+    _In_     BOOLEAN             UseCustomHandler,
     _Outptr_ PLC_STREAM_CONTEXT* StreamContext
     );
 

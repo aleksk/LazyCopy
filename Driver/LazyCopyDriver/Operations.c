@@ -69,9 +69,6 @@ typedef struct _CREATE_COMPLETION_CONTEXT
 
     // File access notification report rate for this file.
     ULONG                      ReportRate;
-
-    // Whether the current process is trusted.
-    BOOLEAN                    TrustedProcess;
 } CREATE_COMPLETION_CONTEXT, *PCREATE_COMPLETION_CONTEXT;
 
 //------------------------------------------------------------------------
@@ -113,6 +110,15 @@ LcGetFileNameInformation (
 #endif // ALLOC_PRAGMA
 
 //------------------------------------------------------------------------
+//  Global variables.
+//------------------------------------------------------------------------
+
+// The current driver adds the following creation options to the file open operations,
+// if the current file should be fetched.
+static const ULONG  DefaultCreateOptions = FILE_OPEN_REPARSE_POINT | FILE_OPEN_FOR_BACKUP_INTENT | FILE_RANDOM_ACCESS | FILE_WRITE_THROUGH;
+static const USHORT DefaultShareAccess   = FILE_SHARE_READ | FILE_SHARE_WRITE;
+
+//------------------------------------------------------------------------
 //  Functions that track operations on the volume.
 //------------------------------------------------------------------------
 
@@ -151,6 +157,7 @@ Return value:
     FLT_PREOP_CALLBACK_STATUS  callbackStatus    = FLT_PREOP_SUCCESS_NO_CALLBACK;
     NTSTATUS                   status            = STATUS_SUCCESS;
     PCREATE_COMPLETION_CONTEXT completionContext = NULL;
+    DRIVER_OPERATION_MODE      operationMode     = DriverDisabled;
     ULONG                      createOptions     = 0;
     ULONG                      createDisposition = 0;
 
@@ -179,7 +186,7 @@ Return value:
         // We don't want to affect:
         // - Directories;
         // - Open by ID operations (it is not possible to determine create path intent);
-        // - Volue open operations;
+        // - Volume open operations;
         // - Paging I/O.
         if (FlagOn(createOptions,                    FILE_DIRECTORY_FILE)
             || FlagOn(createOptions,                 FILE_OPEN_BY_FILE_ID)
@@ -205,19 +212,40 @@ Return value:
             __leave;
         }
 
-        // Allocate context to be passed to the post-operation callback.
-        NT_IF_FAIL_LEAVE(LcAllocateNonPagedBuffer((PVOID*)&completionContext, sizeof(CREATE_COMPLETION_CONTEXT)));
-
-        completionContext->OperationMode = LcGetOperationMode();
-        if (completionContext->OperationMode == DriverDisabled)
+        operationMode = LcGetOperationMode();
+        if (operationMode == DriverDisabled)
         {
             __leave;
         }
 
+        // Let the trusted processes do whatever they want with the current file.
+        if (LcIsProcessTrusted(PsGetThreadProcessId(Data->Thread)))
+        {
+            // If the trusted process is trying to access the current file, make sure it's opened
+            // with the flags allowing it to read and write to the file.
+            //
+            // NOTE: You may want to disable this feature, if your scenario relies on files to be
+            // blocked for access at some point.
+            if ((Data->Iopb->Parameters.Create.Options & DefaultCreateOptions)      != DefaultCreateOptions
+                || (Data->Iopb->Parameters.Create.ShareAccess & DefaultShareAccess) != DefaultShareAccess)
+            {
+                Data->Iopb->Parameters.Create.Options     |= DefaultCreateOptions;
+                Data->Iopb->Parameters.Create.ShareAccess |= DefaultShareAccess;
+
+                // Note: Don't reissue the I/O here.
+                FltSetCallbackDataDirty(Data);
+            }
+
+            __leave;
+        }
+
+        // Allocate context to be passed to the post-operation callback.
+        NT_IF_FAIL_LEAVE(LcAllocateNonPagedBuffer((PVOID*)&completionContext, sizeof(CREATE_COMPLETION_CONTEXT)));
+
         // Fill in the completion context fields.
         NT_IF_FAIL_LEAVE(LcGetFileNameInformation(Data, &completionContext->NameInfo));
-        completionContext->ReportRate     = FlagOn(completionContext->OperationMode, WatchEnabled) ? LcGetReportRateForPath(&completionContext->NameInfo->Name) : 0;
-        completionContext->TrustedProcess = LcIsProcessTrusted(PsGetThreadProcessId(Data->Thread));
+        completionContext->ReportRate    = FlagOn(operationMode, WatchEnabled) ? LcGetReportRateForPath(&completionContext->NameInfo->Name) : 0;
+        completionContext->OperationMode = operationMode;
 
         *CompletionContext = completionContext;
         completionContext  = NULL;
@@ -289,6 +317,7 @@ Return Value:
 
     UNICODE_STRING             remotePath        = { 0 };
     LARGE_INTEGER              fileSize          = { 0 };
+    BOOLEAN                    useCustomHandler  = FALSE;
     PLC_STREAM_CONTEXT         streamContext     = NULL;
     BOOLEAN                    contextCreated    = FALSE;
 
@@ -316,20 +345,19 @@ Return Value:
         }
 
         // Report access operations for non-reparse files, which are accessed by non-trusted processes.
-        if (Data->IoStatus.Status != STATUS_REPARSE && FlagOn(completionContext->OperationMode, WatchEnabled) && !completionContext->TrustedProcess)
+        if (Data->IoStatus.Status != STATUS_REPARSE && FlagOn(completionContext->OperationMode, WatchEnabled))
         {
             LcEtwFileAccessed(completionContext->ReportRate, &completionContext->NameInfo->Name, Data->Iopb->Parameters.Create.Options);
         }
 
-        // Make sure that the current file has a valid reparse tag.
+        // Skip, if the file was opened by another driver or if the unsupported reparse point is found.
         if (Data->IoStatus.Status != STATUS_REPARSE || Data->TagData == NULL || Data->TagData->FileTag != LC_REPARSE_TAG)
         {
             __leave;
         }
 
-        // We don't want to fetch file, if it's accessed by the 'trusted' process.
-        if (!FlagOn(completionContext->OperationMode, FetchEnabled)
-            || completionContext->TrustedProcess)
+        // Don't fetch the file, if we're not configured for it.
+        if (!FlagOn(completionContext->OperationMode, FetchEnabled))
         {
             __leave;
         }
@@ -351,9 +379,24 @@ Return Value:
         }
 
         // Reopen the current file, so the open operation succeeds.
-        Data->Iopb->Parameters.Create.Options |= FILE_OPEN_REPARSE_POINT | FILE_OPEN_FOR_BACKUP_INTENT | FILE_RANDOM_ACCESS | FILE_WRITE_THROUGH;
-        FltSetCallbackDataDirty(Data);
-        FltReissueSynchronousIo(FltObjects->Instance, Data);
+        //
+        // NOTE: Sharing access is also overwritten.
+        // We fetch in Read/Write operation callback, so it might be possible to two applications to open the same
+        // LazyCopy file with no sharing access. In this case the first read/write will fetch the file, and those
+        // apps will continue to work.
+        // Without overwriting the sharing access, our user-mode client will not be able to easily work with these files.
+        // This driver is designed to work as a fetcher for binary files that are not usually simultaneously written to.
+        // If you feel that sharing access is important, consider disabling it and not accessing these files from the service.
+        if ((Data->Iopb->Parameters.Create.Options & DefaultCreateOptions)      != DefaultCreateOptions
+            || (Data->Iopb->Parameters.Create.ShareAccess & DefaultShareAccess) != DefaultShareAccess)
+        {
+            Data->Iopb->Parameters.Create.Options     |= DefaultCreateOptions;
+            Data->Iopb->Parameters.Create.ShareAccess |= DefaultShareAccess;
+
+            FltSetCallbackDataDirty(Data);
+            FltReissueSynchronousIo(FltObjects->Instance, Data);
+            NT_IF_FAIL_LEAVE(Data->IoStatus.Status);
+        }
 
         // If the file have been created or overwritten, untag it, so it will not be fetched later.
         if (Data->IoStatus.Information    == FILE_CREATED
@@ -367,9 +410,9 @@ Return Value:
         }
 
         // Get data from the reparse point and set the proper context, so the file will be fetched on the first read/write operation.
-        NT_IF_FAIL_LEAVE(LcGetReparsePointData(FltObjects, &fileSize, &remotePath));
+        NT_IF_FAIL_LEAVE(LcGetReparsePointData(FltObjects, &fileSize, &remotePath, &useCustomHandler));
 
-        NT_IF_FAIL_LEAVE(LcFindOrCreateStreamContext(Data, TRUE, &fileSize, &remotePath, &streamContext, &contextCreated));
+        NT_IF_FAIL_LEAVE(LcFindOrCreateStreamContext(Data, TRUE, &fileSize, &remotePath, useCustomHandler, &streamContext, &contextCreated));
         if (!contextCreated)
         {
             __leave;
@@ -506,7 +549,7 @@ Return value:
         cancelOnError = TRUE;
 
         LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Fetching file: '%wZ'\n", nameInfo->Name));
-        NT_IF_FAIL_LEAVE(LcFetchRemoteFile(FltObjects, &context->RemoteFilePath, &bytesFetched));
+        NT_IF_FAIL_LEAVE(LcFetchRemoteFile(FltObjects, &context->RemoteFilePath, &nameInfo->Name, context->UseCustomHandler, &bytesFetched));
 
         NT_IF_FAIL_LEAVE(LcUntagFile(FltObjects, &nameInfo->Name));
         NT_IF_FAIL_LEAVE(FltDeleteStreamContext(FltObjects->Instance, FltObjects->FileObject, NULL));

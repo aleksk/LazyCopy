@@ -87,7 +87,8 @@ static
 _Check_return_
 NTSTATUS
 LcOpenFile (
-    _In_  PUNICODE_STRING FilePath,
+    _In_  PUNICODE_STRING SourceFile,
+    _In_  PUNICODE_STRING TargetFile,
     _Out_ PHANDLE         Handle
     );
 
@@ -196,6 +197,8 @@ NTSTATUS
 LcFetchRemoteFile (
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _In_  PUNICODE_STRING       SourceFile,
+    _In_  PUNICODE_STRING       TargetFile,
+    _In_  BOOLEAN               UseCustomHandler,
     _Out_ PLARGE_INTEGER        BytesCopied
     )
 /*++
@@ -209,13 +212,17 @@ Summary:
 
 Arguments:
 
-    FltObjects  - Pointer to the 'FLT_RELATED_OBJECTS' data structure containing
-                  opaque handles to this filter, instance, its associated volume and
-                  file object.
+    FltObjects       - Pointer to the 'FLT_RELATED_OBJECTS' data structure containing
+                       opaque handles to this filter, instance, its associated volume and
+                       file object.
 
-    SourceFile  - Path to the file to fetch content from.
+    SourceFile       - Path to the file to fetch content from.
 
-    BytesCopied - Pointer to the LARGE_INTEGER structure that receives the amount of bytes copied.
+    TargetFile       - Path to the file to store content to.
+
+    UseCustomHandler - Whether the file should be fetched by the user-mode client.
+
+    BytesCopied      - The amount of bytes copied.
 
 Return Value:
 
@@ -233,7 +240,8 @@ Return Value:
 
     IF_FALSE_RETURN_RESULT(FltObjects  != NULL, STATUS_INVALID_PARAMETER_1);
     IF_FALSE_RETURN_RESULT(SourceFile  != NULL, STATUS_INVALID_PARAMETER_2);
-    IF_FALSE_RETURN_RESULT(BytesCopied != NULL, STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(TargetFile  != NULL, STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(BytesCopied != NULL, STATUS_INVALID_PARAMETER_5);
 
     FLT_ASSERT(KeGetCurrentIrql() == PASSIVE_LEVEL);
 
@@ -241,36 +249,43 @@ Return Value:
 
     __try
     {
-        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Fetching content from: '%wZ'\n", SourceFile));
+        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Fetching content from: '%wZ' -> '%wZ'\n", SourceFile, TargetFile));
 
-        //
-        // Open source file and make sure it's not empty.
-        //
-
-        NT_IF_FAIL_LEAVE(LcOpenFile(SourceFile, &sourceFileHandle));
-
-        NT_IF_FAIL_LEAVE(ZwQueryInformationFile(sourceFileHandle, &statusBlock, &standardInfo, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation));
-        if (standardInfo.EndOfFile.QuadPart == 0)
+        if (UseCustomHandler)
         {
-            // No need to copy an empty file.
-            __leave;
+            NT_IF_FAIL_LEAVE(LcFetchFileInUserMode(SourceFile, TargetFile, BytesCopied));
         }
+        else
+        {
+            //
+            // Open the source file and make sure it's not empty.
+            //
 
-        // Extend the target file, so all readers that wait for the content to be copied will get the actual file size information.
-        // Remote file system may return incorrect information, but we are doing it only for the cases, when multiple threads
-        // try to access the same file, while we are fetching it.
-        eofInfo.EndOfFile.QuadPart = standardInfo.EndOfFile.QuadPart;
-        NT_IF_FAIL_LEAVE(FltSetInformationFile(FltObjects->Instance, FltObjects->FileObject, &eofInfo, sizeof(eofInfo), FileEndOfFileInformation));
+            NT_IF_FAIL_LEAVE(LcOpenFile(SourceFile, TargetFile, &sourceFileHandle));
 
-        //
-        // Copy source file contents into the local (target) file.
-        //
+            NT_IF_FAIL_LEAVE(ZwQueryInformationFile(sourceFileHandle, &statusBlock, &standardInfo, sizeof(FILE_STANDARD_INFORMATION), FileStandardInformation));
+            if (standardInfo.EndOfFile.QuadPart == 0)
+            {
+                // No need to copy an empty file.
+                __leave;
+            }
 
-        NT_IF_FAIL_LEAVE(LcFetchFileByChunks(
-            FltObjects,
-            sourceFileHandle,
-            &standardInfo.EndOfFile,
-            BytesCopied));
+            // Extend the target file, so all readers that wait for the content to be copied will get the actual file size information.
+            // Remote file system may return incorrect information, but we are doing it only for the cases, when multiple threads
+            // try to access the same file, while we are fetching it.
+            eofInfo.EndOfFile.QuadPart = standardInfo.EndOfFile.QuadPart;
+            NT_IF_FAIL_LEAVE(FltSetInformationFile(FltObjects->Instance, FltObjects->FileObject, &eofInfo, sizeof(eofInfo), FileEndOfFileInformation));
+
+            //
+            // Copy source file contents into the local (target) file.
+            //
+
+            NT_IF_FAIL_LEAVE(LcFetchFileByChunks(
+                FltObjects,
+                sourceFileHandle,
+                &standardInfo.EndOfFile,
+                BytesCopied));
+        }
     }
     __finally
     {
@@ -291,7 +306,8 @@ static
 _Check_return_
 NTSTATUS
 LcOpenFile (
-    _In_  PUNICODE_STRING FilePath,
+    _In_  PUNICODE_STRING SourceFile,
+    _In_  PUNICODE_STRING TargetFile,
     _Out_ PHANDLE         Handle
     )
 /*++
@@ -305,9 +321,11 @@ Summary:
 
 Arguments:
 
-    FilePath - Path to the file to open.
+    SourceFile - Path to the file to open.
 
-    Handle   - Receives handle to the opened file.
+    TargetFile - Path to the file the content should be stored to.
+
+    Handle     - Receives handle to the opened file.
 
 Return Value:
 
@@ -322,16 +340,17 @@ Return Value:
 
     PAGED_CODE();
 
-    FLT_ASSERT(FilePath != NULL);
-    FLT_ASSERT(Handle   != NULL);
+    FLT_ASSERT(SourceFile != NULL);
+    FLT_ASSERT(TargetFile != NULL);
+    FLT_ASSERT(Handle     != NULL);
 
-    EventWriteFile_Open_Start(NULL, FilePath->Buffer);
+    EventWriteFile_Open_Start(NULL, SourceFile->Buffer);
 
     __try
     {
         // The current minifilter instance may not be attached to the target volume,
         // so the ZwOpenFile/ZwReadFile functions should be used here instead of the FltCreateFile/FltReadFile.
-        InitializeObjectAttributes(&objectAttributes, FilePath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+        InitializeObjectAttributes(&objectAttributes, SourceFile, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
 
         // Open file for asynchronous reads.
         status = ZwOpenFile(
@@ -350,7 +369,7 @@ Return Value:
 
             LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] '%wZ' cannot be accessed by the system, trying to use user-mode service instead.\n", FilePath));
 
-            notificationStatus = LcOpenFileInUserMode(FilePath, &fileHandle);
+            notificationStatus = LcOpenFileInUserMode(SourceFile, TargetFile, &fileHandle);
 
             // Return original status, if error occurred while sending notification to the user-mode client.
             status = notificationStatus == STATUS_PORT_DISCONNECTED || notificationStatus == STATUS_TIMEOUT
@@ -363,6 +382,8 @@ Return Value:
         if (NT_SUCCESS(status))
         {
             *Handle = fileHandle;
+
+            // Make sure it's not closed by the code below.
             fileHandle = NULL;
         }
 

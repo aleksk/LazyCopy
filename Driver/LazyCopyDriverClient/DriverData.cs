@@ -111,7 +111,12 @@ namespace LazyCopy.DriverClient
         /// <summary>
         /// File handle is no longer needed by the driver.
         /// </summary>
-        CloseFileHandle = 2
+        CloseFileHandle = 2,
+
+        /// <summary>
+        /// Driver wants us to download the file.
+        /// </summary>
+        FetchFileInUserMode = 3
     }
 
     #endregion // Enumerations
@@ -153,6 +158,26 @@ namespace LazyCopy.DriverClient
     }
 
     /// <summary>
+    /// Contains data for the <see cref="DriverNotificationType.OpenFileInUserMode"/> notification.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes",
+        Justification = "This structure is a part of the communication protocol and the equality methods are not needed.")]
+    public struct OpenFileInUserModeNotification
+    {
+        /// <summary>
+        /// Path to the file to open.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
+        public string SourceFile;
+
+        /// <summary>
+        /// Path to the file the content should be stored to.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
+        public string TargetFile;
+    }
+
+    /// <summary>
     /// Reply for the <see cref="DriverNotificationType.OpenFileInUserMode"/> notification.
     /// </summary>
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes",
@@ -161,34 +186,11 @@ namespace LazyCopy.DriverClient
     public struct OpenFileInUserModeNotificationReply
     {
         /// <summary>
-        /// Fetched file size.
+        /// Opened file handle.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2111:PointersShouldNotBeVisible",      Justification = "Declared as public to simplify access and assignment.")]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
         public IntPtr Handle;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="OpenFileInUserModeNotificationReply"/> struct.
-        /// </summary>
-        /// <param name="fileHandle">File handle.</param>
-        public OpenFileInUserModeNotificationReply(IntPtr fileHandle)
-        {
-            this.Handle = fileHandle;
-        }
-    }
-
-    /// <summary>
-    /// Contains data for the <see cref="DriverNotificationType.OpenFileInUserMode"/> notification.
-    /// </summary>
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes",
-        Justification = "This structure is a part of the communication protocol and the equality methods are not needed.")]
-    public struct OpenFileInUserModeNotification
-    {
-        /// <summary>
-        /// Path to the file to be opened.
-        /// </summary>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
-        public string FilePath;
     }
 
     /// <summary>
@@ -203,9 +205,45 @@ namespace LazyCopy.DriverClient
         /// Handle to be closed.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Reliability", "CA2006:UseSafeHandleToEncapsulateNativeResources", Justification = "Will be closed by the notification handler.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2111:PointersShouldNotBeVisible", Justification = "Declared as public to simplify access and assignment.")]
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2111:PointersShouldNotBeVisible",                   Justification = "Declared as public to simplify access and assignment.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields",              Justification = "Declared as public to simplify access and assignment.")]
         public IntPtr Handle;
+    }
+
+    /// <summary>
+    /// Contains data for the <see cref="DriverNotificationType.FetchFileInUserMode"/> notification.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes",
+        Justification = "This structure is a part of the communication protocol and the equality methods are not needed.")]
+    public struct FetchFileInUserModeNotification
+    {
+        /// <summary>
+        /// Path to the file to fetch content from.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
+        public string SourceFile;
+
+        /// <summary>
+        /// Path to the file to store content to.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
+        public string TargetFile;
+    }
+
+    /// <summary>
+    /// Reply for the <see cref="DriverNotificationType.FetchFileInUserMode"/> notification.
+    /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1815:OverrideEqualsAndOperatorEqualsOnValueTypes",
+        Justification = "This structure is a part of the communication protocol and the equality methods are not needed.")]
+    [StructLayout(LayoutKind.Sequential)]
+    public struct FetchFileInUserModeNotificationReply
+    {
+        /// <summary>
+        /// Opened file handle.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2111:PointersShouldNotBeVisible",      Justification = "Declared as public to simplify access and assignment.")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1051:DoNotDeclareVisibleInstanceFields", Justification = "Declared as public to simplify access and assignment.")]
+        public long BytesCopied;
     }
 
     #endregion // Structures

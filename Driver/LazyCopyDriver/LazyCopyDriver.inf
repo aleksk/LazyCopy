@@ -30,7 +30,7 @@ Class             = "ActivityMonitor"
 ClassGuid         = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
 Provider          = %ManufacturerName%
 DriverPackageType = FileSystemMinifilter
-DriverVer         = 05/9/2014,1.2.3.4
+DriverVer         = 06/20/2016,1.0.0.0
 CatalogFile       = LazyCopyDriver.cat
 
 [DestinationDirs]
@@ -108,7 +108,7 @@ HKR,,"WatchPaths",0x00010000,""      ; REG_MULTI_SZ
 ;;
 
 [Strings]
-ManufacturerName      = "Unknown Manufacturer"
+ManufacturerName      = "YOUR_NAME_HERE"
 ServiceDescription    = "Driver for fetching files lazily from the remote source"
 ServiceName           = "LazyCopyDriver"
 DriverName            = "LazyCopyDriver"
@@ -117,5 +117,5 @@ DiskId1               = "LazyCopy Driver Installation Disk"
 ; Instances-specific information.
 DefaultInstance       = "LazyCopyDriver"
 Instance1.Name        = "LazyCopyDriver"
-Instance1.Altitude    = "180610"    ; Before going to production, make sure you contact Microsoft to register your driver and get this value.
+Instance1.Altitude    = "180610"    ; Before releasing your driver, make sure you contact Microsoft to register it and get this value.
 Instance1.Flags       = 0x0         ; Automatically attach.

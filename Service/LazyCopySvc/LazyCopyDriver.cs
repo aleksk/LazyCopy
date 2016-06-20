@@ -29,6 +29,7 @@ namespace LazyCopy.Service
     using System;
     using System.IO;
     using System.Linq;
+    using System.Net;
     using System.Runtime.InteropServices;
     using System.Security.Principal;
     using System.Threading;
@@ -86,8 +87,9 @@ namespace LazyCopy.Service
 
             // And connect to it.
             this.driverClient = new LazyCopyDriverClient();
-            this.driverClient.OpenFileInUserModeHandler += this.OpenFileInUserModeHandler;
-            this.driverClient.CloseFileHandleHandler    += this.CloseFileHandleHandler;
+            this.driverClient.OpenFileInUserModeHandler  += this.OpenFileInUserModeHandler;
+            this.driverClient.CloseFileHandleHandler     += this.CloseFileHandleHandler;
+            this.driverClient.FetchFileInUserModeHandler += this.FetchFileInUserModeHandler;
         }
 
         #endregion // Constructor
@@ -151,16 +153,20 @@ namespace LazyCopy.Service
         {
             this.ImpersonateCurrentThread();
 
-            string file = PathHelper.ChangeDeviceNameToDriveLetter(notification.FilePath);
+            //
+            // NOTE: You may want to open a different source file depending on where the local file is located.
+            // string targetFile = notification.TargetFile;
+            //
 
-            // TODO: Open for async access.
-            IntPtr handle = Native.NativeMethods.CreateFile(file, FileAccess.Read, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, FileAttributes.Normal, IntPtr.Zero);
+            string sourceFile = PathHelper.ChangeDeviceNameToDriveLetter(notification.SourceFile);
+
+            IntPtr handle = Native.NativeMethods.CreateFile(sourceFile, FileAccess.Read, FileShare.ReadWrite, IntPtr.Zero, FileMode.Open, FileAttributes.Normal, IntPtr.Zero);
             if (handle == IntPtr.Zero)
             {
                 Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
             }
 
-            return new OpenFileInUserModeNotificationReply(handle);
+            return new OpenFileInUserModeNotificationReply { Handle = handle };
         }
 
         /// <summary>
@@ -173,6 +179,28 @@ namespace LazyCopy.Service
             {
                 Native.NativeMethods.CloseHandle(notification.Handle);
             }
+        }
+
+        /// <summary>
+        /// Downloads the remote file given.
+        /// </summary>
+        /// <param name="notification">Driver notification.</param>
+        private FetchFileInUserModeNotificationReply FetchFileInUserModeHandler(FetchFileInUserModeNotification notification)
+        {
+            this.ImpersonateCurrentThread();
+
+            string sourceFile = notification.SourceFile;
+            string targetFile = PathHelper.ChangeDeviceNameToDriveLetter(notification.TargetFile);
+
+            if (sourceFile.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || sourceFile.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                using (WebClient client = new WebClient())
+                {
+                    client.DownloadFile(sourceFile, targetFile);
+                }
+            }
+
+            return new FetchFileInUserModeNotificationReply { BytesCopied = 404 };
         }
 
         /// <summary>

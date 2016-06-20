@@ -62,7 +62,8 @@ LcCloseCommunicationPort (
 _Check_return_
 NTSTATUS
 LcOpenFileInUserMode (
-    _In_  PCUNICODE_STRING FilePath,
+    _In_  PCUNICODE_STRING SourceFile,
+    _In_  PCUNICODE_STRING TargetFile,
     _Out_ PHANDLE          Handle
     );
 
@@ -70,6 +71,14 @@ _Check_return_
 NTSTATUS
 LcCloseFileHandle (
     _In_ HANDLE FileHandle
+    );
+
+_Check_return_
+NTSTATUS
+LcFetchFileInUserMode (
+    _In_  PCUNICODE_STRING SourceFile,
+    _In_  PCUNICODE_STRING TargetFile,
+    _Out_ PLARGE_INTEGER   BytesCopied
     );
 
 #endif // __LAZY_COPY_COMMUNICATION_H__

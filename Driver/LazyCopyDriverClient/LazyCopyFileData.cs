@@ -44,6 +44,12 @@ namespace LazyCopy.DriverClient
         public string RemotePath { get; set; }
 
         /// <summary>
+        /// If set to <see langword="true"/>, the driver will delegate file download operation
+        /// to the <see cref="LazyCopyDriverClient.FetchFileInUserModeHandler"/> handler.
+        /// </summary>
+        public bool UseCustomHandler { get; set; }
+
+        /// <summary>
         /// Returns a <see cref="System.String"/> that represents this instance.
         /// </summary>
         /// <returns>
@@ -51,7 +57,7 @@ namespace LazyCopy.DriverClient
         /// </returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "FileSize: {0}, RemotePath: '{1}'", this.FileSize, this.RemotePath);
+            return string.Format(CultureInfo.InvariantCulture, "FileSize: {0}, RemotePath: '{1}', UseCustomHandler: {2}", this.FileSize, this.RemotePath, this.UseCustomHandler);
         }
     }
 }

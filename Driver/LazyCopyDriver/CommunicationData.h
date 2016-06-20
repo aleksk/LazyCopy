@@ -70,11 +70,14 @@ typedef enum _DRIVER_COMMAND_TYPE
 //
 typedef enum _DRIVER_NOTIFICATION_TYPE
 {
-    // Asks user-mode client(s) to open the file given.
-    OpenFileInUserMode = 1,
+    // Asks the user-mode client to open the file given.
+    OpenFileInUserMode  = 1,
 
-    // Tells client that the handle is not needed anymore and can be closed.
-    CloseFileHandle    = 2
+    // Tells the user-mode client that the handle is not needed anymore and can be closed.
+    CloseFileHandle     = 2,
+
+    // Asks the user-mode client to fetch the file given for us.
+    FetchFileInUserMode = 3
 } DRIVER_NOTIFICATION_TYPE, *PDRIVER_NOTIFICATION_TYPE;
 
 //------------------------------------------------------------------------
@@ -169,7 +172,7 @@ typedef struct _REPORT_RATE
 } REPORT_RATE, *PREPORT_RATE;
 
 //------------------------------------------------------------------------
-//  OpenFileInUserMode notification.
+//  'OpenFileInUserMode' notification.
 //------------------------------------------------------------------------
 
 //
@@ -178,8 +181,9 @@ typedef struct _REPORT_RATE
 //
 typedef struct _FILE_OPEN_NOTIFICATION_DATA
 {
-    // Path to the file to be opened.
-    WCHAR FilePath[];
+    // Paths to the source and target files.
+    // Strings are divided by the null-terminator.
+    WCHAR Data[];
 } FILE_OPEN_NOTIFICATION_DATA, *PFILE_OPEN_NOTIFICATION_DATA;
 
 //
@@ -192,7 +196,7 @@ typedef struct _FILE_OPEN_NOTIFICATION_REPLY
 } FILE_OPEN_NOTIFICATION_REPLY, *PFILE_OPEN_NOTIFICATION_REPLY;
 
 //------------------------------------------------------------------------
-//  CloseFileHandle notification.
+//  'CloseFileHandle' notification.
 //------------------------------------------------------------------------
 
 //
@@ -205,6 +209,30 @@ typedef struct _FILE_CLOSE_NOTIFICATION_DATA
     // Handle to be closed.
     HANDLE FileHandle;
 } FILE_CLOSE_NOTIFICATION_DATA, *PFILE_CLOSE_NOTIFICATION_DATA;
+
+//------------------------------------------------------------------------
+//  'FetchFileInUserMode' notification.
+//------------------------------------------------------------------------
+
+//
+// Contains notification data to be sent to the user-mode client,
+// when the driver needs a file to be fetched by it.
+//
+typedef struct _FILE_FETCH_NOTIFICATION_DATA
+{
+    // Paths to the source and target files.
+    // Strings are divided by the null-terminator.
+    WCHAR Data[];
+} FILE_FETCH_NOTIFICATION_DATA, *PFILE_FETCH_NOTIFICATION_DATA;
+
+//
+// Reply received from the user-mode client for the 'FetchFileInUserMode' notification.
+//
+typedef struct _FILE_FETCH_NOTIFICATION_REPLY
+{
+    // The amount of bytes copied from the source file.
+    LONGLONG BytesCopied;
+} FILE_FETCH_NOTIFICATION_REPLY, *PFILE_FETCH_NOTIFICATION_REPLY;
 
 #pragma warning(pop)
 #endif // __LAZY_COPY_COMMUNICATION_DATA_H__

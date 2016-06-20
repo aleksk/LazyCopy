@@ -134,8 +134,12 @@ namespace LazyCopy.DriverClient
                 path,
                 new object[] // Custom serialization layout for the LazyCopyFileData object.
                 {
-                    fileData.FileSize,
-                    Encoding.Unicode.GetBytes(PathHelper.ChangeDriveLetterToDeviceName(fileData.RemotePath) + '\0')
+                    (long)(fileData.UseCustomHandler ? 1L : 0L),
+                    (long)fileData.FileSize,
+                    // Add the prefix, if the custom handling is needed for the file.
+                    Encoding.Unicode.GetBytes(
+                        (fileData.UseCustomHandler ? fileData.RemotePath : PathHelper.ChangeDriveLetterToDeviceName(fileData.RemotePath))
+                        + '\0')
                 },
                 LazyCopyFileHelper.LazyCopyReparseTag,
                 LazyCopyFileHelper.LazyCopyReparseGuid);
@@ -171,10 +175,13 @@ namespace LazyCopy.DriverClient
             try
             {
                 LazyCopyReparseData data = ReparsePointHelper.GetReparsePointData<LazyCopyReparseData>(path, LazyCopyFileHelper.LazyCopyReparseTag, LazyCopyFileHelper.LazyCopyReparseGuid);
+                bool useCustomHandler    = data.UseCustomHandler > 0;
+
                 return new LazyCopyFileData
                 {
-                    FileSize   = data.FileSize,
-                    RemotePath = PathHelper.ChangeDeviceNameToDriveLetter(data.RemotePath)
+                    UseCustomHandler = useCustomHandler,
+                    FileSize         = data.FileSize,
+                    RemotePath       = useCustomHandler ? data.RemotePath : PathHelper.ChangeDeviceNameToDriveLetter(data.RemotePath)
                 };
             }
             catch (InvalidOperationException)
@@ -193,6 +200,11 @@ namespace LazyCopy.DriverClient
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         private struct LazyCopyReparseData
         {
+            /// <summary>
+            /// Whether the file should be fetched by the user-mode service.
+            /// </summary>
+            public long UseCustomHandler;
+
             /// <summary>
             /// Original file size.
             /// </summary>

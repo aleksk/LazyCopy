@@ -95,6 +95,11 @@ namespace LazyCopy.DriverClient
         /// </summary>
         public Action<CloseFileHandleNotification> CloseFileHandleHandler { get; set; }
 
+        /// <summary>
+        /// Gets or sets the <c>FetchFileInUserMode</c> notification handler.
+        /// </summary>
+        public Func<FetchFileInUserModeNotification, FetchFileInUserModeNotificationReply> FetchFileInUserModeHandler { get; set; }
+
         #endregion // Properties
 
         #region Public methods
@@ -192,23 +197,52 @@ namespace LazyCopy.DriverClient
             switch (driverNotification.Type)
             {
                 case (int)DriverNotificationType.OpenFileInUserMode:
-                    Func<OpenFileInUserModeNotification, OpenFileInUserModeNotificationReply> fetchHandler = this.OpenFileInUserModeHandler;
-                    if (fetchHandler != null)
+
+                    Func<OpenFileInUserModeNotification, OpenFileInUserModeNotificationReply> openHandler = this.OpenFileInUserModeHandler;
+                    if (openHandler != null)
                     {
-                        OpenFileInUserModeNotification notification = new OpenFileInUserModeNotification { FilePath = Marshal.PtrToStringUni(driverNotification.Data) };
-                        return fetchHandler(notification);
+                        string sourceFile = Marshal.PtrToStringUni(driverNotification.Data);
+                        string targetFile = Marshal.PtrToStringUni(IntPtr.Add(driverNotification.Data, Marshal.SystemDefaultCharSize * (sourceFile.Length + 1)));
+
+                        OpenFileInUserModeNotification notification = new OpenFileInUserModeNotification
+                        {
+                            SourceFile = sourceFile,
+                            TargetFile = targetFile,
+                        };
+
+                        return openHandler(notification);
                     }
 
                     break;
 
                 case (int)DriverNotificationType.CloseFileHandle:
-                    Action<CloseFileHandleNotification> handler = this.CloseFileHandleHandler;
-                    if (handler != null)
+
+                    Action<CloseFileHandleNotification> closeHandler = this.CloseFileHandleHandler;
+                    if (closeHandler != null)
                     {
                         CloseFileHandleNotification notification = new CloseFileHandleNotification { Handle = Marshal.ReadIntPtr(driverNotification.Data) };
-                        handler(notification);
+                        closeHandler(notification);
 
                         return null;
+                    }
+
+                    break;
+
+                case (int)DriverNotificationType.FetchFileInUserMode:
+
+                    Func<FetchFileInUserModeNotification, FetchFileInUserModeNotificationReply> fetchHandler = this.FetchFileInUserModeHandler;
+                    if (fetchHandler != null)
+                    {
+                        string sourceFile = Marshal.PtrToStringUni(driverNotification.Data);
+                        string targetFile = Marshal.PtrToStringUni(IntPtr.Add(driverNotification.Data, Marshal.SystemDefaultCharSize * (sourceFile.Length + 1)));
+
+                        FetchFileInUserModeNotification notification = new FetchFileInUserModeNotification
+                        {
+                            SourceFile = sourceFile,
+                            TargetFile = targetFile,
+                        };
+
+                        return fetchHandler(notification);
                     }
 
                     break;

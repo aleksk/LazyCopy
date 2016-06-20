@@ -56,7 +56,8 @@ NTSTATUS
 LcGetReparsePointData (
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _Out_ PLARGE_INTEGER        RemoteFileSize,
-    _Out_ PUNICODE_STRING       RemoteFilePath
+    _Out_ PUNICODE_STRING       RemoteFilePath,
+    _Out_ PBOOLEAN              UseCustomHandler
     );
 
 _Check_return_

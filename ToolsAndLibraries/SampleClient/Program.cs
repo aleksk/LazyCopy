@@ -41,22 +41,31 @@ namespace SampleClient
         /// <param name="args"></param>
         static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length != 2 || string.IsNullOrEmpty(args[0]) || string.IsNullOrEmpty(args[1]))
             {
-                Console.Out.WriteLine("sampleclient.exe <source file> <target file>");
+                Console.Out.WriteLine("sampleclient.exe \"<source_file_with_data>\" \"<local_file>\"");
                 return;
             }
 
-            var sourceFile = new LongPathFileInfo(args[0]);
-            var targetFile = new LongPathFileInfo(args[1]);
+            string sourceFileName = args[0].Trim();
+            string targetFileName = args[1].Trim();
+            var targetFile        = new LongPathFileInfo(targetFileName);
 
-            if (!sourceFile.Exists)
+            if (sourceFileName.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || sourceFileName.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
-                Console.Out.WriteLine("Source file doesn't exist: " + sourceFile);
-                return;
+                LazyCopyFileHelper.CreateLazyCopyFile(targetFile.FullName, new LazyCopyFileData { RemotePath = sourceFileName, FileSize = 404, UseCustomHandler = true });
             }
+            else
+            {
+                var sourceFile = new LongPathFileInfo(sourceFileName);
+                if (!sourceFile.Exists)
+                {
+                    Console.Out.WriteLine("Source file doesn't exist: " + sourceFile);
+                    return;
+                }
 
-            LazyCopyFileHelper.CreateLazyCopyFile(targetFile.FullName, new LazyCopyFileData { RemotePath = sourceFile.FullName, FileSize = sourceFile.Length });
+                LazyCopyFileHelper.CreateLazyCopyFile(targetFile.FullName, new LazyCopyFileData { RemotePath = sourceFile.FullName, FileSize = sourceFile.Length });
+            }
         }
     }
 }

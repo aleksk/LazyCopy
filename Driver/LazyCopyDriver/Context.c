@@ -115,6 +115,7 @@ LcFindOrCreateStreamContext (
     _When_(CreateIfNotFound,  _In_)
     _When_(!CreateIfNotFound, _In_opt_)
               PUNICODE_STRING     RemoteFilePath,
+    _In_      BOOLEAN             UseCustomHandler,
     _Outptr_  PLC_STREAM_CONTEXT* StreamContext,
     _Out_opt_ PBOOLEAN            ContextCreated
     )
@@ -136,6 +137,8 @@ Arguments:
 
     RemoteFilePath   - Path to the remote file to be fetched.
 
+    UseCustomHandler - Whether the file should be fetched by the user-mode client.
+
     StreamContext    - Returns the stream context.
 
     ContextCreated   - Returns TRUE, if the context was created as a result of this function;
@@ -155,7 +158,7 @@ Return value:
     PAGED_CODE();
 
     IF_FALSE_RETURN_RESULT(Data          != NULL, STATUS_INVALID_PARAMETER_1);
-    IF_FALSE_RETURN_RESULT(StreamContext != NULL, STATUS_INVALID_PARAMETER_5);
+    IF_FALSE_RETURN_RESULT(StreamContext != NULL, STATUS_INVALID_PARAMETER_6);
 
     if (CreateIfNotFound)
     {
@@ -183,7 +186,7 @@ Return value:
                 __leave;
             }
 
-            NT_IF_FAIL_LEAVE(LcCreateStreamContext(RemoteFileSize, RemoteFilePath, &context));
+            NT_IF_FAIL_LEAVE(LcCreateStreamContext(RemoteFileSize, RemoteFilePath, UseCustomHandler, &context));
 
             // Set the allocated context, if it's not already set by another caller.
             status = FltSetStreamContext(Data->Iopb->TargetInstance, Data->Iopb->TargetFileObject, FLT_SET_CONTEXT_KEEP_IF_EXISTS, context, (PFLT_CONTEXT*)&oldContext);
@@ -229,6 +232,7 @@ NTSTATUS
 LcCreateStreamContext (
     _In_     PLARGE_INTEGER      RemoteFileSize,
     _In_     PUNICODE_STRING     RemoteFilePath,
+    _In_     BOOLEAN             UseCustomHandler,
     _Outptr_ PLC_STREAM_CONTEXT* StreamContext
     )
 /*++
@@ -239,11 +243,13 @@ Summary:
 
 Arguments:
 
-    RemoteFileSize - Size of the remote file.
+    RemoteFileSize   - Size of the remote file.
 
-    RemoteFilePath - Path to the remote file to be fetched.
+    RemoteFilePath   - Path to the remote file.
 
-    StreamContext  - Returns the context allocated.
+    UseCustomHandler - Whether the file should be fetched by the user-mode client.
+
+    StreamContext    - Returns the context allocated.
 
 Return value:
 
@@ -258,7 +264,7 @@ Return value:
 
     IF_FALSE_RETURN_RESULT(RemoteFileSize != NULL, STATUS_INVALID_PARAMETER_1);
     IF_FALSE_RETURN_RESULT(RemoteFilePath != NULL, STATUS_INVALID_PARAMETER_2);
-    IF_FALSE_RETURN_RESULT(StreamContext  != NULL, STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(StreamContext  != NULL, STATUS_INVALID_PARAMETER_4);
 
     __try
     {
@@ -268,7 +274,9 @@ Return value:
 
         // Copy the remote path and size given to the context allocated.
         NT_IF_FAIL_LEAVE(LcCopyUnicodeString(&context->RemoteFilePath, RemoteFilePath));
-        context->RemoteFileSize = *RemoteFileSize;
+
+        context->RemoteFileSize   = *RemoteFileSize;
+        context->UseCustomHandler = UseCustomHandler;
 
         *StreamContext = context;
     }

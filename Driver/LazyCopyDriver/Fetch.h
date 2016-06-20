@@ -57,6 +57,8 @@ NTSTATUS
 LcFetchRemoteFile (
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _In_  PUNICODE_STRING       SourceFile,
+    _In_  PUNICODE_STRING       TargetFile,
+    _In_  BOOLEAN               UseCustomHandler,
     _Out_ PLARGE_INTEGER        BytesCopied
     );
 

@@ -80,6 +80,10 @@ namespace LazyCopy.Service
         /// <param name="args">Service startup parameters.</param>
         protected override void OnStart(string[] args)
         {
+#if DEBUG
+            System.Diagnostics.Debugger.Launch();
+#endif
+
             try
             {
                 // Load driver and update its settings.

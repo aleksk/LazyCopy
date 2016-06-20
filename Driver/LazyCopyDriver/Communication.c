@@ -226,6 +226,7 @@ LcValidateBufferAlignment (
     // Notifications.
     #pragma alloc_text(PAGE, LcOpenFileInUserMode)
     #pragma alloc_text(PAGE, LcCloseFileHandle)
+    #pragma alloc_text(PAGE, LcFetchFileInUserMode)
 
     // Local functions.
     #pragma alloc_text(PAGE, LcCommunicationPortConnect)
@@ -276,9 +277,9 @@ Return value:
 
 --*/
 {
-    NTSTATUS status                         = STATUS_SUCCESS;
-    UNICODE_STRING portName                 = { 0 };
-    OBJECT_ATTRIBUTES objectAttributes      = { 0 };
+    NTSTATUS             status             = STATUS_SUCCESS;
+    UNICODE_STRING       portName           = { 0 };
+    OBJECT_ATTRIBUTES    objectAttributes   = { 0 };
     PSECURITY_DESCRIPTOR securityDescriptor = NULL;
 
     PAGED_CODE();
@@ -366,20 +367,23 @@ Return value:
 _Check_return_
 NTSTATUS
 LcOpenFileInUserMode (
-    _In_  PCUNICODE_STRING FilePath,
+    _In_  PCUNICODE_STRING SourceFile,
+    _In_  PCUNICODE_STRING TargetFile,
     _Out_ PHANDLE          Handle
     )
 /*++
 
 Summary:
 
-    This function asks user-mode client to open file.
+    This function asks user-mode client to open the file.
 
 Arguments:
 
-    FilePath - Path to the file to be opened.
+    SourceFile - Path to the file to open.
 
-    Handle   - Handle received from the client.
+    TargetFile - Path to the file the content should be stored to.
+
+    Handle     - Handle received from the client.
 
 Return value:
 
@@ -393,23 +397,28 @@ Return value:
 
     PAGED_CODE();
 
-    IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(FilePath)), STATUS_INVALID_PARAMETER_1);
-    IF_FALSE_RETURN_RESULT(Handle != NULL,                                 STATUS_INVALID_PARAMETER_2);
+    IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(SourceFile)), STATUS_INVALID_PARAMETER_1);
+    IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(TargetFile)), STATUS_INVALID_PARAMETER_2);
+    IF_FALSE_RETURN_RESULT(Handle        != NULL,                            STATUS_INVALID_PARAMETER_3);
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Sending open notification for file: '%wZ'\n", FilePath));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Sending open notification for file: '%wZ' -> '%wZ'\n", SourceFile, TargetFile));
 
     __try
     {
-        // Don't forget to reserve space for a null-termination character.
-        const        ULONG dataSize  = sizeof(FILE_OPEN_NOTIFICATION_DATA) + FilePath->Length + sizeof(WCHAR);
+        // Don't forget to reserve space for the null-termination characters.
+        const        ULONG dataSize  = sizeof(FILE_OPEN_NOTIFICATION_DATA) + SourceFile->Length + TargetFile->Length + 2 * sizeof(WCHAR);
         static const ULONG replySize = sizeof(FILTER_REPLY_HEADER) + sizeof(FILE_OPEN_NOTIFICATION_REPLY);
 
         NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data,  NonPagedPool, dataSize,  LC_COMMUNICATION_NON_PAGED_POOL_TAG));
         NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&reply, NonPagedPool, replySize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
 
-        RtlCopyMemory(data->FilePath, FilePath->Buffer, FilePath->Length);
+        // Add the 'SourceFile'.
+        RtlCopyMemory(data->Data, SourceFile->Buffer, SourceFile->Length);
 
-        // Send message to the user-mode client.
+        // Add the 'TargetFile' right after the 'SourceFile' and its null-termination character.
+        // NOTE: 'data->Data' is WCHAR*, not BYTE*.
+        RtlCopyMemory(data->Data + (SourceFile->Length / sizeof(WCHAR)) + 1, TargetFile->Buffer, TargetFile->Length);
+
         NT_IF_FAIL_LEAVE(LcSendMessageToClient(OpenFileInUserMode, data, dataSize, reply, replySize));
 
         //
@@ -480,11 +489,10 @@ Return value:
 
     __try
     {
-        static const ULONG dataSize  = sizeof(FILE_CLOSE_NOTIFICATION_DATA);
+        static const ULONG dataSize = sizeof(FILE_CLOSE_NOTIFICATION_DATA);
         NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data, NonPagedPool, dataSize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
         data->FileHandle = FileHandle;
 
-        // Send message to the user-mode client.
         NT_IF_FAIL_LEAVE(LcSendMessageToClient(CloseFileHandle, data, dataSize, NULL, 0));
     }
     __finally
@@ -492,6 +500,83 @@ Return value:
         if (data != NULL)
         {
             LcFreeBuffer(data, LC_COMMUNICATION_NON_PAGED_POOL_TAG);
+        }
+    }
+
+    return status;
+}
+
+_Check_return_
+NTSTATUS
+LcFetchFileInUserMode (
+    _In_  PCUNICODE_STRING SourceFile,
+    _In_  PCUNICODE_STRING TargetFile,
+    _Out_ PLARGE_INTEGER   BytesCopied
+    )
+/*++
+
+Summary:
+
+    This function asks user-mode client to copy the original file to the local/target file.
+
+Arguments:
+
+    SourceFile  - Path to the file to fetch content from.
+
+    TargetFile  - Path to the file to store content to.
+
+    BytesCopied - The amount of bytes copied.
+
+Return value:
+
+    The return value is the status of the operation.
+
+--*/
+{
+    NTSTATUS                       status      = STATUS_SUCCESS;
+    LARGE_INTEGER                  bytesCopied = { 0 };
+    PFILE_FETCH_NOTIFICATION_DATA  data        = NULL;
+    PFILE_FETCH_NOTIFICATION_REPLY reply       = NULL;
+
+    PAGED_CODE();
+
+    IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(SourceFile)), STATUS_INVALID_PARAMETER_1);
+    IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(TargetFile)), STATUS_INVALID_PARAMETER_2);
+    IF_FALSE_RETURN_RESULT(BytesCopied != NULL,                              STATUS_INVALID_PARAMETER_3);
+
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Sending fetch notification for file: '%wZ' -> '%wZ'\n", SourceFile, TargetFile));
+
+    __try
+    {
+        // Don't forget to reserve space for the null-termination characters.
+        const        ULONG dataSize  = sizeof(FILE_FETCH_NOTIFICATION_DATA) + SourceFile->Length + TargetFile->Length + 2 * sizeof(WCHAR);
+        static const ULONG replySize = sizeof(FILTER_REPLY_HEADER) + sizeof(FILE_FETCH_NOTIFICATION_REPLY);
+
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data,  NonPagedPool, dataSize,  LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&reply, NonPagedPool, replySize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+
+        // Add the 'SourceFile'.
+        RtlCopyMemory(data->Data, SourceFile->Buffer, SourceFile->Length);
+
+        // Add the 'TargetFile' right after the 'SourceFile' and its null-termination character.
+        // NOTE: 'data->Data' is WCHAR*, not BYTE*.
+        RtlCopyMemory(data->Data + (SourceFile->Length / sizeof(WCHAR)) + 1, TargetFile->Buffer, TargetFile->Length);
+
+        NT_IF_FAIL_LEAVE(LcSendMessageToClient(FetchFileInUserMode, data, dataSize, reply, replySize));
+
+        bytesCopied.QuadPart = reply->BytesCopied;
+        *BytesCopied         = bytesCopied;
+    }
+    __finally
+    {
+        if (data != NULL)
+        {
+            LcFreeBuffer(data, LC_COMMUNICATION_NON_PAGED_POOL_TAG);
+        }
+
+        if (reply != NULL)
+        {
+            LcFreeBuffer(reply, LC_COMMUNICATION_NON_PAGED_POOL_TAG);
         }
     }
 

@@ -76,6 +76,9 @@ typedef struct _LC_REPARSE_DATA
 
     // User-defined data for the reparse point.
     struct {
+        // Whether the file should be fetched by the user-mode client.
+        LONGLONG UseCustomHandler;
+
         // Size of the remote file.
         LONGLONG RemoteFileSize;
 
@@ -93,7 +96,8 @@ NTSTATUS
 LcGetReparsePointData (
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _Out_ PLARGE_INTEGER        RemoteFileSize,
-    _Out_ PUNICODE_STRING       RemoteFilePath
+    _Out_ PUNICODE_STRING       RemoteFilePath,
+    _Out_ PBOOLEAN              UseCustomHandler
     )
 /*++
 
@@ -103,13 +107,15 @@ Summary:
 
 Arguments:
 
-    FltObjects     - Pointer to the 'FLT_RELATED_OBJECTS' data structure containing
-                     opaque handles to this filter, instance, its associated volume and
-                     file object.
+    FltObjects       - Pointer to the 'FLT_RELATED_OBJECTS' data structure containing
+                       opaque handles to this filter, instance, its associated volume and
+                       file object.
 
-    RemoteFileSize - Size of the remote file to be fetched.
+    RemoteFileSize   - Size of the remote file to be fetched.
 
-    RemoteFilePath - Path of the file to be fetched.
+    RemoteFilePath   - Path of the file to be fetched.
+
+    UseCustomHandler - Whether the file should be fetched by the user-mode client.
 
 Return Value:
 
@@ -133,6 +139,7 @@ Return Value:
     IF_FALSE_RETURN_RESULT(FltObjects->FileObject != NULL, STATUS_INVALID_PARAMETER_1);
     IF_FALSE_RETURN_RESULT(RemoteFileSize         != NULL, STATUS_INVALID_PARAMETER_2);
     IF_FALSE_RETURN_RESULT(RemoteFilePath         != NULL, STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(UseCustomHandler       != NULL, STATUS_INVALID_PARAMETER_4);
 
     __try
     {
@@ -164,6 +171,7 @@ Return Value:
 
         *RemoteFileSize       = remoteFileSize;
         *RemoteFilePath       = remoteFilePath;
+        *UseCustomHandler     = !!reparseData->ReparseBuffer.UseCustomHandler;
         remoteFilePath.Buffer = NULL;
     }
     __finally

@@ -198,3 +198,7 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+/LazyCopy.VC.VC.opendb
+/LazyCopy.VC.db
+/Driver/LazyCopyDriverInstall/Win10Debug/LazyCopy.F94D238E.tlog
+/Driver/LazyCopyDriver/Win10Debug
