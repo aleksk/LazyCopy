@@ -47,6 +47,10 @@ Filter Name                     Num Instances    Altitude    Frame
 LazyCopyDriver                          7       370021         0
 FileInfo                                8        45000         0
 ```
+If it's not there, try to manually load it:
+```
+> fltmc load lazycopydriver
+```
 * Install and start the LazyCopySvc. This is optional and needed, if you want to have a custom download logic (for example, being able to download files via HTTP).
 ```
 > sc create LazyCopySvc binPath="<path to LazyCopySvc.exe>" DisplayName="LazyCopySvc"
