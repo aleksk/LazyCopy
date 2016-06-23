@@ -3,9 +3,9 @@ LazyCopy
 
 An NTFS [minifilter driver](https://msdn.microsoft.com/en-us/library/windows/hardware/ff540402%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396) that can replace file contents, when it is accessed for the first time.
 
-For example, with the included C# client you can create an empty file and "map" it to a remote location. When that file is opened, its contents will be downloaded by the driver:
+For example, with the included C# client you can create an empty file and "map" it to a remote location. When that file is opened, its contents will be seamlessly downloaded:
 * `c:\temp\copy.txt` can point to the `d:\binaries\source.txt`. When you open the `copy.txt` file for the first time, content is copied from the `source.txt` by the kernel-mode driver.
-* `c:\temp\copy.txt` can also point to the `http://www.contoso.org`, but in this case the user-mode service downloads the file from the remote website and stores it locally.
+* `c:\temp\copy.txt` can also point to the `http://www.contoso.org`. In this case the user-mode service downloads the file from the remote website.
 
 Prerequisites
 -------
