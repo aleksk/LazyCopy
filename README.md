@@ -6,7 +6,7 @@ An NTFS [minifilter driver](https://msdn.microsoft.com/en-us/library/windows/har
 Three endpoints are currently supported:
 * `c:\temp\copy.txt` => `d:\binaries\source.txt`. Content is copied by the kernel-mode driver.
 * `c:\temp\copy.txt` => `\\build_server\source.txt`. If the driver cannot open the file from the kernel-mode, it asks the user-mode service to open that file, and then downloads content in the kernel-mode.
-* `c:\temp\copy.txt` => `http://www.contoso.org/`. Driver asks the user-mode service to download that file. You can extend the user-mode service to support more endpoints.
+* `c:\temp\copy.txt` => `http://www.contoso.org/`. Driver asks the user-mode service to download that file. You can easily extend the user-mode service to support more endpoints.
 
 Prerequisites
 -------
@@ -69,11 +69,11 @@ bin\SampleClient\SampleClient.exe "http://www.contoso.org/"              "c:\tem
 bin\SampleClient\SampleClient.exe "d:\data\file_with_data.txt"           "c:\temp\yet_empty_file.txt"
 ```
 
-Driver signing
+Production driver signing
 -------
 
 * [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) a code signing certificate.
-* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/dn170454(v=vs.85).aspx) the cross-certificate for it. For example, you may want to use the [VeriSign Cross-Certificate](http://go.microsoft.com/fwlink/p/?linkid=321787).
+* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/dn170454(v=vs.85).aspx) the cross-certificate for it. You may want to use the [VeriSign Cross-Certificate](http://go.microsoft.com/fwlink/p/?linkid=321787).
 * Sign the driver and, optionally, other binaries.
   If you purchased a VeriSign certificate, you can use the following command to sign the driver in the post-build step:
 ```
@@ -81,7 +81,7 @@ signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH
 &
 signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.cat"
 ```
-For instance:
+For example:
 ```
 signtool sign /v /s my /n "Contoso Org" /sha1 "CAFEBEBE0123456701BE7F9D3BBDFBB230233386" /ac "c:\temp\VeriSign_Cross_Sign.cer" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
 ```
@@ -90,7 +90,7 @@ Want to reuse the project files?
 -------
 
 * Change the [name](Driver/LazyCopyDriver/LazyCopyDriver.inf) of the driver and rename binaries.
-* Generate a new GUID for the [ETW provider](Driver/LazyCopyDriver/LazyCopyEtw.mc) and re-create header:
+* [Generate](https://msdn.microsoft.com/en-us/library/windows/desktop/aa385638(v=vs.85).aspx) a new GUID for the [ETW provider](Driver/LazyCopyDriver/LazyCopyEtw.mc) and re-create header:
 ```
 mc.exe -z LazyCopyEtw -n -km LazyCopyEtw.mc
 ```
