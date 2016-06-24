@@ -714,7 +714,7 @@ Return value:
 
     // Close the connection handle. This will set the 'ClientPort' to NULL.
     // NOTE: Since we limited max connections to 1, another connect request
-    //       won't won't be allowed until we return from the disconnect function.
+    //       won't be allowed until we return from the disconnect function.
     FltCloseClientPort(Globals.Filter, &ClientPort);
 
     LcResetConnectionVariables();
