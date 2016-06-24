@@ -140,10 +140,7 @@ namespace LazyCopy.Utilities
         {
             get
             {
-                lock (this.syncRoot)
-                {
-                    return this.isDisposed;
-                }
+                return this.isDisposed;
             }
         }
 
