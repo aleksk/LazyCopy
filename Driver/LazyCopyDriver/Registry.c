@@ -251,7 +251,7 @@ Return value:
         string.Length = (USHORT)valueBuffer->DataLength - sizeof(WCHAR);
 
         // Set the output value and set the 'string.Buffer' to NULL, so it won't be freed in the __finally block.
-        *Value = string;
+        *Value        = string;
         string.Buffer = NULL;
     }
     __finally
