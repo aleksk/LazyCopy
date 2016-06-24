@@ -33,13 +33,12 @@ Folder structure
 Installation
 -------
 
-* Allow unsigned driver installation:
-   1. Open CMD as Admin and type: `bcdedit -set TESTSIGNING ON` ([info](https://msdn.microsoft.com/en-us/library/windows/hardware/ff553484(v=vs.85).aspx)).
-   2. Reboot. This will allow Windows to load drivers signed with the test certificates.
+* Allow Windows to load drivers signed with the test certificates:
+   1. Open CMD as Admin and type ([info](https://msdn.microsoft.com/en-us/library/windows/hardware/ff553484(v=vs.85).aspx)): `bcdedit -set TESTSIGNING ON`
+   2. Reboot.
 * Compile the entire solution in the Visual Studio <i>for your architecture</i>. Make sure to choose the valid `Target Platform Version` in the `LazyCopyDriver` project settings.
 * You can manually install the driver by right clicking on the `.inf` file and choosing `Install`.
-* Check that LazyCopyDriver appeared in the `fltmc` command output.
-<br/>Refer to the [MSDN](https://msdn.microsoft.com/en-us/library/windows/hardware/ff548166(v=vs.85).aspx) for additional information.
+* Check that LazyCopyDriver appeared in the `fltmc` command output ([info](https://msdn.microsoft.com/en-us/library/windows/hardware/ff548166(v=vs.85).aspx)).
 <br/>From the Admin CMD:
 ```
 > fltmc
@@ -48,7 +47,7 @@ Filter Name                     Num Instances    Altitude    Frame
 LazyCopyDriver                          7        180610        0
 FileInfo                                8        45000         0
 ```
-If it's not there, try to manually load it:
+Depending on the load type specified in the `.inf` file, it might not be automatically loaded. You can do it manually:
 ```
 > fltmc load lazycopydriver
 ```
@@ -69,7 +68,7 @@ bin\SampleClient\SampleClient.exe "http://www.contoso.org/"              "c:\tem
 bin\SampleClient\SampleClient.exe "d:\data\file_with_data.txt"           "c:\temp\yet_empty_file.txt"
 ```
 
-Production driver signing
+Driver signing
 -------
 
 * [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) a code signing certificate.
