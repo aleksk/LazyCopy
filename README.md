@@ -98,4 +98,4 @@ mc.exe -z LazyCopyEtw -n -km LazyCopyEtw.mc
   - [Instance1.Altitude](Driver/LazyCopyDriver/LazyCopyDriver.inf) - from [here](https://msdn.microsoft.com/en-us/library/windows/hardware/dn508284(v=vs.85).aspx)
 * (Optional) Change the reparse point tag: [LC_REPARSE_TAG](Driver/LazyCopyDriver/Globals.h).
 * Update the client code with the new reparse GUID and tag: [LazyCopyFileHelper.cs](Driver/LazyCopyDriverClient/LazyCopyFileHelper.cs).
-* (Optional) Disable the sharing access override in the [Operations.c](Driver/LazyCopyDriver/Operations.c) (see the 'PreCreateOperationCallback' method).
+* (Optional) Disable the sharing access override in the [Operations.c](Driver/LazyCopyDriver/Operations.c) (see the `PreCreateOperationCallback` method).
