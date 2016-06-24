@@ -57,7 +57,7 @@ Environment:
 // Defined in the "Globals.h".
 DRIVER_GLOBAL_DATA Globals         = { 0 };
 
-// TODO: Before going to production, make sure to contact Microsoft to register this reparse point GUID.
+// TODO: Before releasing the driver, make sure to contact Microsoft to register your reparse point GUID.
 // {611F0D07-698B-49F4-9DDB-8446662D3325}
 GUID               LC_REPARSE_GUID = { 0x611F0D07, 0x698B, 0x49F4, 0x9D, 0xDB, 0x84, 0x46, 0x66, 0x2D, 0x33, 0x25 };
 
