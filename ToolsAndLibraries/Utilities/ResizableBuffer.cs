@@ -221,7 +221,7 @@ namespace LazyCopy.Utilities
                 {
                     Marshal.FreeHGlobal(this.buffer);
 
-                    this.buffer = IntPtr.Zero;
+                    this.buffer     = IntPtr.Zero;
                     this.byteLength = 0;
                 }
 
