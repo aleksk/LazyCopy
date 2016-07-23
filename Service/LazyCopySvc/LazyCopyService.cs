@@ -91,7 +91,6 @@ namespace LazyCopy.Service
             }
             catch (Exception e)
             {
-                File.WriteAllText(@"D:\Temp\out.txt", e.ToString());
                 LogManager.GetCurrentClassLogger().Fatal(e, "Unable to start service: {0}");
                 throw;
             }
