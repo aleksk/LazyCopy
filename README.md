@@ -3,6 +3,8 @@ LazyCopy
 
 An NTFS [minifilter driver](https://msdn.microsoft.com/en-us/library/windows/hardware/ff540402%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396) that can download file contents from a remote location, when it is read or written for the first time.
 
+![img](https://github.com/aleksk/LazyCopy/blob/master/demo.gif)
+
 Three endpoints are currently supported:
 * `c:\temp\copy.txt` => `d:\binaries\source.txt`. Content is copied by the kernel-mode driver.
 * `c:\temp\copy.txt` => `\\build_server\source.txt`. If the driver cannot open the file from the kernel-mode, it asks the user-mode service to open that file, and then downloads content in the kernel-mode.
@@ -12,8 +14,8 @@ Prerequisites
 -------
 
 1. Windows 7+
-2. [Visual Studio 2015 & WDK 10](https://msdn.microsoft.com/en-us/windows/hardware/dn913721.aspx)
-3. [WiX toolset](https://wix.codeplex.com/releases/view/610859)
+2. [Visual Studio 2015 & WDK 10](https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit)
+3. [WiX toolset](https://wix.codeplex.com/releases/view/624906)
 
 Folder structure
 -------
@@ -29,6 +31,31 @@ Folder structure
   - `SampleClient         ` - A basic console C# application that can create files that are understood by the driver.
 - `Service\LazyCopySvc`     - A user-mode system service that manages the lifetime and configuration of the driver. It can also open files on behalf of the currently logged in user, or download them per driver request.
 - `Setup`                   - [WiX](http://wixtoolset.org/) installation package to install driver, service and the client applications.
+
+Compilation
+-------
+
+1. Make sure you have the latest [WDK](https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit) installed.
+2. Open 'LazyCopyDriver' project properties, and make sure the General > "Target Platform Version" value corresponds to the WDK version you installed.
+3. (Optionally) Configure driver test signing in the project Properties > Driver Signing > General.
+4. Make sure the solution is compiled for your architecture (Main menu > Build > Configuration Manager).
+
+Driver signing
+-------
+
+* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) a code signing certificate.
+* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/dn170454(v=vs.85).aspx) the cross-certificate for it. You may want to use the [VeriSign Cross-Certificate](http://go.microsoft.com/fwlink/p/?linkid=321787).
+* Sign the driver and, optionally, other binaries.
+  If you purchased a VeriSign certificate, you can use the following command to sign the driver in the post-build step:
+```
+signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
+&
+signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.cat"
+```
+For example:
+```
+signtool sign /v /s my /n "Contoso Org" /sha1 "CAFEBEBE0123456701BE7F9D3BBDFBB230233386" /ac "c:\temp\VeriSign_Cross_Sign.cer" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
+```
 
 Installation
 -------
@@ -62,27 +89,10 @@ Usage
 
 Create an empty file that will be fetched on the first access (admin permissions are required):
 ```
-bin\SampleClient\SampleClient.exe <original file>                        <new empty file>
-bin\SampleClient\SampleClient.exe "\\build_server\bin\latest_drop.zip"   "c:\temp\build_latest.zip"
-bin\SampleClient\SampleClient.exe "http://www.contoso.org/"              "c:\temp\contoso_org_content.txt"
-bin\SampleClient\SampleClient.exe "d:\data\file_with_data.txt"           "c:\temp\yet_empty_file.txt"
-```
-
-Driver signing
--------
-
-* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/hh801887.aspx) a code signing certificate.
-* [Get](https://msdn.microsoft.com/en-us/library/windows/hardware/dn170454(v=vs.85).aspx) the cross-certificate for it. You may want to use the [VeriSign Cross-Certificate](http://go.microsoft.com/fwlink/p/?linkid=321787).
-* Sign the driver and, optionally, other binaries.
-  If you purchased a VeriSign certificate, you can use the following command to sign the driver in the post-build step:
-```
-signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
-&
-signtool sign /v /s my /n "<YOUR_NAME>" /sha1 "<YOUR_CERT_THUMBNAIL>" /ac "<PATH_TO_CROSS_CERT>" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.cat"
-```
-For example:
-```
-signtool sign /v /s my /n "Contoso Org" /sha1 "CAFEBEBE0123456701BE7F9D3BBDFBB230233386" /ac "c:\temp\VeriSign_Cross_Sign.cer" /t http://timestamp.verisign.com/scripts/timestamp.dll "$(TargetPath)\LazyCopyDriver.sys"
+bin\SampleClient\CreateLcFile.exe <original file>                        <new empty file>
+bin\SampleClient\CreateLcFile.exe "\\build_server\bin\latest_drop.zip"   "c:\temp\build_latest.zip"
+bin\SampleClient\CreateLcFile.exe "http://www.contoso.org/"              "c:\temp\contoso_org_content.txt"
+bin\SampleClient\CreateLcFile.exe "d:\data\file_with_data.txt"           "c:\temp\yet_empty_file.txt"
 ```
 
 Want to reuse the project files?
@@ -99,3 +109,4 @@ mc.exe -z LazyCopyEtw -n -km LazyCopyEtw.mc
 * (Optional) Change the reparse point tag: [LC_REPARSE_TAG](Driver/LazyCopyDriver/Globals.h).
 * Update the client code with the new reparse GUID and tag: [LazyCopyFileHelper.cs](Driver/LazyCopyDriverClient/LazyCopyFileHelper.cs).
 * (Optional) Disable the sharing access override in the [Operations.c](Driver/LazyCopyDriver/Operations.c) (see the `PreCreateOperationCallback` method).
+* Make sure that all 'TODO:' items are addressed in the code.
