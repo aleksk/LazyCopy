@@ -202,3 +202,5 @@ FakesAssemblies/
 /LazyCopy.VC.db
 /Driver/LazyCopyDriverInstall/Win10Debug/LazyCopy.F94D238E.tlog
 /Driver/LazyCopyDriver/Win10Debug
+/Driver/LazyCopyDriver/Win10Release/LazyCopyDriver.tlog
+/Driver/LazyCopyDriver/Win10Release

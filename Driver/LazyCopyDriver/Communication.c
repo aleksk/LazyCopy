@@ -53,7 +53,7 @@ Environment:
 #define DEFAULT_PORT_NAME  L"\\LazyCopyDriverPort"
 
 //------------------------------------------------------------------------
-//  Local type definitions.
+//  Local types.
 //------------------------------------------------------------------------
 
 //
@@ -62,7 +62,7 @@ Environment:
 typedef
 _Check_return_
 NTSTATUS
-(*CommandHandler) (
+(*CommandHandler)(
     PVOID  InputBuffer,
     ULONG  InputBufferSize,
     PVOID  OutputBuffer,
@@ -83,20 +83,20 @@ static __volatile HANDLE    ClientProcessHandle = NULL;
 // Handle to the system process.
 static __volatile HANDLE    SystemProcessHandle = NULL;
 
-// Server port listens for incoming connections.
+// Server port that listens for incoming connections.
 static __volatile PFLT_PORT ServerPort          = NULL;
 
 // Used to send notifications to the user-mode client.
 static __volatile PFLT_PORT ClientPort          = NULL;
 
 //------------------------------------------------------------------------
-//  Local function prototype declarations.
+//  Local functions.
 //------------------------------------------------------------------------
 
 static
 _Check_return_
 NTSTATUS
-LcCommunicationPortConnect (
+LcCommunicationPortConnect(
     _In_                                PFLT_PORT Port,
     _In_opt_                            PVOID     ServerPortCookie,
     _In_reads_bytes_opt_(SizeOfContext) PVOID     ConnectionContext,
@@ -106,19 +106,18 @@ LcCommunicationPortConnect (
 
 static
 VOID
-LcCommunicationPortDisconnect (
+LcCommunicationPortDisconnect(
     _In_opt_ PVOID ConnectionCookie
     );
 
 static
 VOID
-LcResetConnectionVariables (
-    );
+LcResetConnectionVariables();
 
 static
 _Check_return_
 NTSTATUS
-LcClientMessageReceived (
+LcClientMessageReceived(
     _In_                                                                   PVOID  ConnectionCookie,
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
@@ -130,7 +129,7 @@ LcClientMessageReceived (
 static
 _Check_return_
 NTSTATUS
-LcSendMessageToClient (
+LcSendMessageToClient(
     _In_                                             DRIVER_NOTIFICATION_TYPE NotificationType,
     _In_reads_bytes_(DataLength)                     PVOID                    Data,
     _In_                                             ULONG                    DataLength,
@@ -140,7 +139,7 @@ LcSendMessageToClient (
 
 static
 LONG
-LcDriverExceptionFilter (
+LcDriverExceptionFilter(
     _In_ PEXCEPTION_POINTERS ExceptionPointer,
     _In_ BOOLEAN             AccessingUserBuffer
     );
@@ -152,7 +151,7 @@ LcDriverExceptionFilter (
 static
 _Check_return_
 NTSTATUS
-LcGetDriverVersionHandler (
+LcGetDriverVersionHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -163,7 +162,7 @@ LcGetDriverVersionHandler (
 static
 _Check_return_
 NTSTATUS
-LcReadRegistryParametersHandler (
+LcReadRegistryParametersHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -174,7 +173,7 @@ LcReadRegistryParametersHandler (
 static
 _Check_return_
 NTSTATUS
-LcSetOperationModeHandler (
+LcSetOperationModeHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -185,7 +184,7 @@ LcSetOperationModeHandler (
 static
 _Check_return_
 NTSTATUS
-LcSetWatchPathsHandler (
+LcSetWatchPathsHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -196,7 +195,7 @@ LcSetWatchPathsHandler (
 static
 _Check_return_
 NTSTATUS
-LcSetReportRateHandler (
+LcSetReportRateHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -211,7 +210,7 @@ LcSetReportRateHandler (
 static
 _Check_return_
 NTSTATUS
-LcValidateBufferAlignment (
+LcValidateBufferAlignment(
     _In_ PVOID Buffer
     );
 
@@ -253,8 +252,7 @@ LcValidateBufferAlignment (
 
 _Check_return_
 NTSTATUS
-LcCreateCommunicationPort (
-    )
+LcCreateCommunicationPort()
 /*++
 
 Summary:
@@ -265,7 +263,7 @@ Summary:
     In order to use the port created, client must be running with the
     SYSTEM or ADMIN privileges.
 
-    Only one simultaneous client is allowed.
+    Only one simultaneous clientv connection is allowed.
 
 Arguments:
 
@@ -313,7 +311,7 @@ Return value:
                 LcClientMessageReceived,
             1));                                       // [in] Maximum number of simultaneous client connections allowed.
 
-        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Communication port created.\n"));
+        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Communication port created\n"));
     }
     __finally
     {
@@ -326,7 +324,7 @@ Return value:
 
         if (!NT_SUCCESS(status))
         {
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to create communication port: 0x%X\n", status));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to create communication port: %08X\n", status));
             LcCloseCommunicationPort();
         }
     }
@@ -334,9 +332,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcCloseCommunicationPort (
-    )
+LcCloseCommunicationPort()
 /*++
 
 Summary:
@@ -361,12 +360,14 @@ Return value:
         ServerPort = NULL;
     }
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Communication port closed.\n"));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Communication port closed\n"));
 }
+
+//------------------------------------------------------------------------
 
 _Check_return_
 NTSTATUS
-LcOpenFileInUserMode (
+LcOpenFileInUserMode(
     _In_  PCUNICODE_STRING SourceFile,
     _In_  PCUNICODE_STRING TargetFile,
     _Out_ PHANDLE          Handle
@@ -399,7 +400,7 @@ Return value:
 
     IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(SourceFile)), STATUS_INVALID_PARAMETER_1);
     IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(TargetFile)), STATUS_INVALID_PARAMETER_2);
-    IF_FALSE_RETURN_RESULT(Handle        != NULL,                            STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(Handle != NULL,                                   STATUS_INVALID_PARAMETER_3);
 
     LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Sending open notification for file: '%wZ' -> '%wZ'\n", SourceFile, TargetFile));
 
@@ -409,8 +410,8 @@ Return value:
         const        ULONG dataSize  = sizeof(FILE_OPEN_NOTIFICATION_DATA) + SourceFile->Length + TargetFile->Length + 2 * sizeof(WCHAR);
         static const ULONG replySize = sizeof(FILTER_REPLY_HEADER) + sizeof(FILE_OPEN_NOTIFICATION_REPLY);
 
-        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data,  NonPagedPool, dataSize,  LC_COMMUNICATION_NON_PAGED_POOL_TAG));
-        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&reply, NonPagedPool, replySize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data,  NonPagedPoolNx, dataSize,  LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&reply, NonPagedPoolNx, replySize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
 
         // Add the 'SourceFile'.
         RtlCopyMemory(data->Data, SourceFile->Buffer, SourceFile->Length);
@@ -445,7 +446,7 @@ Return value:
         {
             if (reply->FileHandle != NULL)
             {
-                #pragma warning(suppress: 6031) // Ignore the return value here.
+                #pragma warning(suppress: __WARNING_RETVAL_IGNORED_FUNC_COULD_FAIL) // Ignore the return value here.
                 LcCloseFileHandle(reply->FileHandle);
             }
 
@@ -456,16 +457,18 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcCloseFileHandle (
+LcCloseFileHandle(
     _In_  HANDLE FileHandle
     )
 /*++
 
 Summary:
 
-    This function notifies the user-mode client that the handle
+    This function notifies the user-mode client that the 'FileHandle'
     can be closed.
 
 Arguments:
@@ -485,12 +488,12 @@ Return value:
 
     IF_FALSE_RETURN_RESULT(FileHandle != NULL, STATUS_INVALID_PARAMETER_1);
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Sending close notification for handle: 0x%p\n", FileHandle));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Sending close notification for handle: %p\n", FileHandle));
 
     __try
     {
         static const ULONG dataSize = sizeof(FILE_CLOSE_NOTIFICATION_DATA);
-        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data, NonPagedPool, dataSize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data, NonPagedPoolNx, dataSize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
         data->FileHandle = FileHandle;
 
         NT_IF_FAIL_LEAVE(LcSendMessageToClient(CloseFileHandle, data, dataSize, NULL, 0));
@@ -506,9 +509,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcFetchFileInUserMode (
+LcFetchFileInUserMode(
     _In_  PCUNICODE_STRING SourceFile,
     _In_  PCUNICODE_STRING TargetFile,
     _Out_ PLARGE_INTEGER   BytesCopied
@@ -517,7 +522,7 @@ LcFetchFileInUserMode (
 
 Summary:
 
-    This function asks user-mode client to copy the original file to the local/target file.
+    This function asks the user-mode client to copy the original file to the local/target file.
 
 Arguments:
 
@@ -552,8 +557,8 @@ Return value:
         const        ULONG dataSize  = sizeof(FILE_FETCH_NOTIFICATION_DATA) + SourceFile->Length + TargetFile->Length + 2 * sizeof(WCHAR);
         static const ULONG replySize = sizeof(FILTER_REPLY_HEADER) + sizeof(FILE_FETCH_NOTIFICATION_REPLY);
 
-        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data,  NonPagedPool, dataSize,  LC_COMMUNICATION_NON_PAGED_POOL_TAG));
-        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&reply, NonPagedPool, replySize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&data,  NonPagedPoolNx, dataSize,  LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&reply, NonPagedPoolNx, replySize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
 
         // Add the 'SourceFile'.
         RtlCopyMemory(data->Data, SourceFile->Buffer, SourceFile->Length);
@@ -590,7 +595,7 @@ Return value:
 static
 _Check_return_
 NTSTATUS
-LcCommunicationPortConnect (
+LcCommunicationPortConnect(
     _In_                                PFLT_PORT Port,
     _In_opt_                            PVOID     ServerPortCookie,
     _In_reads_bytes_opt_(SizeOfContext) PVOID     ConnectionContext,
@@ -641,12 +646,12 @@ Return value:
     FLT_ASSERT(ClientPort       == NULL);
     FLT_ASSERT(ClientProcessId  == NULL);
 
-    // Set the cookie value.
     *ConnectionCookie = NULL;
+
     ClientPort        = Port;
     ClientProcessId   = PsGetCurrentProcessId();
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Client connected to port 0x%p\n", ClientPort));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Client connected to port: %p\n", ClientPort));
 
     __try
     {
@@ -677,7 +682,7 @@ Return value:
     {
         if (!NT_SUCCESS(status))
         {
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Unable to accept client connection: 0x%X\n", status));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Unable to accept client connection: %08X\n", status));
 
             LcResetConnectionVariables();
         }
@@ -686,9 +691,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 VOID
-LcCommunicationPortDisconnect (
+LcCommunicationPortDisconnect(
     _In_opt_ PVOID ConnectionCookie
     )
 /*++
@@ -719,13 +726,14 @@ Return value:
 
     LcResetConnectionVariables();
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Client disconnected.\n"));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Client disconnected\n"));
 }
+
+//------------------------------------------------------------------------
 
 static
 VOID
-LcResetConnectionVariables (
-    )
+LcResetConnectionVariables()
 /*++
 
 Summary:
@@ -763,10 +771,12 @@ Return value:
     }
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcClientMessageReceived (
+LcClientMessageReceived(
     _In_                                                                   PVOID  ConnectionCookie,
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
@@ -813,15 +823,15 @@ Return value:
 
     UNREFERENCED_PARAMETER(ConnectionCookie);
 
-    IF_FALSE_RETURN_RESULT(InputBuffer != NULL, STATUS_INVALID_PARAMETER_2);
-    IF_FALSE_RETURN_RESULT(InputBufferSize > 0, STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(InputBuffer != NULL,                              STATUS_INVALID_PARAMETER_2);
+    IF_FALSE_RETURN_RESULT(InputBufferSize > 0,                              STATUS_INVALID_PARAMETER_3);
     IF_FALSE_RETURN_RESULT((OutputBuffer != NULL) == (OutputBufferSize > 0), STATUS_INVALID_PARAMETER_4);
-    IF_FALSE_RETURN_RESULT(ReturnOutputBufferLength != NULL, STATUS_INVALID_PARAMETER_6);
+    IF_FALSE_RETURN_RESULT(ReturnOutputBufferLength != NULL,                 STATUS_INVALID_PARAMETER_6);
 
     // Validate the output buffer alignment.
     if (OutputBuffer != NULL)
     {
-        #pragma warning(suppress: 6001) // Using uninitialized memory '*OutputBuffer'.
+        #pragma warning(suppress: __WARNING_USING_UNINIT_VAR) // Using uninitialized memory '*OutputBuffer'.
         NT_IF_FAIL_RETURN(LcValidateBufferAlignment(OutputBuffer));
     }
 
@@ -882,8 +892,8 @@ Return value:
 
         if (!NT_SUCCESS(status))
         {
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Command handler failed: 0x%X\n", status));
-            FLT_ASSERTMSG("Command handler failed.", FALSE);
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Command handler failed: %08X\n", status));
+            FLT_ASSERTMSG("Command handler failed", FALSE);
         }
     }
     __except (LcDriverExceptionFilter(GetExceptionInformation(), TRUE))
@@ -894,10 +904,12 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcSendMessageToClient (
+LcSendMessageToClient(
     _In_                                             DRIVER_NOTIFICATION_TYPE NotificationType,
     _In_reads_bytes_(DataLength)                     PVOID                    Data,
     _In_                                             ULONG                    DataLength,
@@ -946,7 +958,7 @@ Return value:
         NT_IF_FALSE_LEAVE(ClientPort != NULL, STATUS_PORT_DISCONNECTED);
 
         // Allocate enough memory for the notification.
-        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&notification, NonPagedPool, notificationSize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
+        NT_IF_FAIL_LEAVE(LcAllocateBuffer((PVOID*)&notification, NonPagedPoolNx, notificationSize, LC_COMMUNICATION_NON_PAGED_POOL_TAG));
         notification->Type       = NotificationType;
         notification->DataLength = DataLength;
 
@@ -965,16 +977,18 @@ Return value:
 
         if (!NT_SUCCESS(status))
         {
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] Unable to send message to the client: 0x%X\n", status));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] Unable to send message to the client: %08X\n", status));
         }
     }
 
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 LONG
-LcDriverExceptionFilter (
+LcDriverExceptionFilter(
     _In_ PEXCEPTION_POINTERS ExceptionPointer,
     _In_ BOOLEAN             AccessingUserBuffer
     )
@@ -1026,7 +1040,7 @@ Return value:
 static
 _Check_return_
 NTSTATUS
-LcGetDriverVersionHandler (
+LcGetDriverVersionHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -1078,7 +1092,7 @@ Return value:
     // Protect access to the raw user-mode output buffer with an exception handler.
     __try
     {
-        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Returning driver version %d.%d\n", LC_MAJOR_VERSION, LC_MINOR_VERSION));
+        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_INFO_LEVEL, "[LazyCopy] Returning driver version: %d.%d\n", LC_MAJOR_VERSION, LC_MINOR_VERSION));
 
         ((PDRIVER_VERSION)OutputBuffer)->Major = LC_MAJOR_VERSION;
         ((PDRIVER_VERSION)OutputBuffer)->Minor = LC_MINOR_VERSION;
@@ -1093,10 +1107,12 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcReadRegistryParametersHandler (
+LcReadRegistryParametersHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -1155,10 +1171,12 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcSetOperationModeHandler (
+LcSetOperationModeHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -1230,10 +1248,12 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcSetWatchPathsHandler (
+LcSetWatchPathsHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -1292,11 +1312,11 @@ Return value:
         __try
         {
             // Free the previous list before populating it again.
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Clearing previous paths to watch.\n"));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Clearing previous paths to watch\n"));
             LcClearPathsToWatch();
 
             watchPaths = (PWATCH_PATHS)InputBuffer;
-            buffer = watchPaths->Data;
+            buffer     = watchPaths->Data;
 
             for (idx = 0; idx < watchPaths->PathCount; idx++)
             {
@@ -1327,10 +1347,12 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcSetReportRateHandler (
+LcSetReportRateHandler(
     _In_reads_bytes_opt_(InputBufferSize)                                  PVOID  InputBuffer,
     _In_                                                                   ULONG  InputBufferSize,
     _Out_writes_bytes_to_opt_(OutputBufferSize, *ReturnOutputBufferLength) PVOID  OutputBuffer,
@@ -1372,7 +1394,7 @@ Return value:
     UNREFERENCED_PARAMETER(OutputBuffer);
     UNREFERENCED_PARAMETER(OutputBufferSize);
 
-    // Input buffer should at least contain the 'PathCount' value.
+    // Input buffer should at least contain the 'ReportRate' value.
     IF_FALSE_RETURN_RESULT(InputBuffer != NULL,                    STATUS_INVALID_PARAMETER_1);
     IF_FALSE_RETURN_RESULT(InputBufferSize >= sizeof(REPORT_RATE), STATUS_INVALID_PARAMETER_2);
 
@@ -1409,7 +1431,7 @@ Return value:
 static
 _Check_return_
 NTSTATUS
-LcValidateBufferAlignment (
+LcValidateBufferAlignment(
     _In_ PVOID Buffer
     )
 /*++

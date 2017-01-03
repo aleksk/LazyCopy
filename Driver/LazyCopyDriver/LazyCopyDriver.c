@@ -64,20 +64,19 @@ GUID               LC_REPARSE_GUID = { 0x611F0D07, 0x698B, 0x49F4, 0x9D, 0xDB, 0
 ULONG              LC_RANDOM_SEED  = 'SeeD';
 
 //------------------------------------------------------------------------
-//  Local function prototype declarations.
+//  Local function prototypes.
 //------------------------------------------------------------------------
 
 static
 _Check_return_
 NTSTATUS
-LcInitializeGlobals (
+LcInitializeGlobals(
     _In_ PDRIVER_OBJECT DriverObject
     );
 
 static
 VOID
-LcFreeDriverObjects (
-    );
+LcFreeDriverObjects();
 
 //------------------------------------------------------------------------
 //  Text sections.
@@ -99,7 +98,7 @@ LcFreeDriverObjects (
 //------------------------------------------------------------------------
 
 NTSTATUS
-DriverEntry (
+DriverEntry(
     _In_ PDRIVER_OBJECT  DriverObject,
     _In_ PUNICODE_STRING RegistryPath
     )
@@ -132,7 +131,7 @@ Return value:
 
     FLT_ASSERT(DriverObject != NULL);
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Initializing driver.\n"));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Initializing driver\n"));
 
     // Register with the ETW.
     EventRegisterLazyCopyDriver();
@@ -154,13 +153,13 @@ Return value:
         // Start filtering I/O.
         NT_IF_FAIL_LEAVE(FltStartFiltering(Globals.Filter));
 
-        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Driver has been initialized.\n"));
+        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Driver has been initialized\n"));
     }
     __finally
     {
         if (!NT_SUCCESS(status))
         {
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to initialize driver: 0x%X\n", status));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to initialize driver: %08X\n", status));
             LcFreeDriverObjects();
         }
     }
@@ -170,8 +169,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 NTSTATUS
-DriverInstanceSetup (
+DriverInstanceSetup(
     _In_ PCFLT_RELATED_OBJECTS    FltObjects,
     _In_ FLT_INSTANCE_SETUP_FLAGS Flags,
     _In_ DEVICE_TYPE              VolumeDeviceType,
@@ -218,16 +219,18 @@ Return value:
     // Allow attachments only on NTFS volumes.
     if (VolumeDeviceType == FILE_DEVICE_DISK_FILE_SYSTEM && VolumeFilesystemType == FLT_FSTYPE_NTFS)
     {
-        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Attached to Volume = 0x%p, Instance = 0x%p\n", FltObjects->Volume, FltObjects->Instance));
+        LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Attached to Volume = %p, Instance = %p\n", FltObjects->Volume, FltObjects->Instance));
         return STATUS_SUCCESS;
     }
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] Volume is not eligible for attachment: 0x%p\n", FltObjects->Volume));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] Volume is not eligible for attachment: %p\n", FltObjects->Volume));
     return STATUS_FLT_DO_NOT_ATTACH;
 }
 
+//------------------------------------------------------------------------
+
 NTSTATUS
-DriverInstanceQueryTeardown (
+DriverInstanceQueryTeardown(
     _In_ PCFLT_RELATED_OBJECTS             FltObjects,
     _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS Flags
     )
@@ -240,8 +243,7 @@ Summary:
     chance to fail that detach request.
 
     If this function is not defined in the registration structure, explicit
-    detach requests via 'FltDetachVolume' or 'FilterDetach' will always be
-    failed.
+    detach requests via 'FltDetachVolume' or 'FilterDetach' will always fail.
 
 Arguments:
 
@@ -264,8 +266,10 @@ Return value:
     return STATUS_SUCCESS;
 }
 
+//------------------------------------------------------------------------
+
 NTSTATUS
-DriverUnload (
+DriverUnload(
     _In_ FLT_FILTER_UNLOAD_FLAGS Flags
     )
 /*++
@@ -290,7 +294,7 @@ Return value:
 {
     UNREFERENCED_PARAMETER(Flags);
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unloading driver.\n"));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unloading driver\n"));
 
     // Free global variables, close ports, unregister filter, and etc.
     LcFreeDriverObjects();
@@ -298,7 +302,7 @@ Return value:
     // Unregister from the ETW.
     EventUnregisterLazyCopyDriver();
 
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Driver has been unloaded.\n"));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Driver has been unloaded\n"));
 
     return STATUS_SUCCESS;
 }
@@ -310,7 +314,7 @@ Return value:
 static
 _Check_return_
 NTSTATUS
-LcInitializeGlobals (
+LcInitializeGlobals(
     _In_ PDRIVER_OBJECT DriverObject
     )
 /*++
@@ -341,10 +345,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 VOID
-LcFreeDriverObjects (
-    )
+LcFreeDriverObjects()
 /*++
 
 Summary:

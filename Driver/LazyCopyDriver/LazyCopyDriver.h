@@ -28,8 +28,8 @@ Module Name:
 
 Abstract:
 
-    Contains type definitions and function prototype declarations
-    that are used for minifilter registration and operation.
+    Contains type definitions and function prototypes that are used
+    for minifilter registration and operation.
 
 Environment:
 
@@ -64,13 +64,13 @@ extern const FLT_REGISTRATION FilterRegistration;
 DRIVER_INITIALIZE DriverEntry;
 
 NTSTATUS
-DriverEntry (
+DriverEntry(
     _In_ PDRIVER_OBJECT  DriverObject,
     _In_ PUNICODE_STRING RegistryPath
     );
 
 NTSTATUS
-DriverInstanceSetup (
+DriverInstanceSetup(
     _In_ PCFLT_RELATED_OBJECTS    FltObjects,
     _In_ FLT_INSTANCE_SETUP_FLAGS Flags,
     _In_ DEVICE_TYPE              VolumeDeviceType,
@@ -78,13 +78,13 @@ DriverInstanceSetup (
     );
 
 NTSTATUS
-DriverInstanceQueryTeardown (
+DriverInstanceQueryTeardown(
     _In_ PCFLT_RELATED_OBJECTS             FltObjects,
     _In_ FLT_INSTANCE_QUERY_TEARDOWN_FLAGS Flags
     );
 
 NTSTATUS
-DriverUnload (
+DriverUnload(
     _In_ FLT_FILTER_UNLOAD_FLAGS Flags
     );
 
@@ -93,14 +93,14 @@ DriverUnload (
 //
 
 FLT_PREOP_CALLBACK_STATUS
-PreCreateOperationCallback (
+PreCreateOperationCallback(
     _Inout_                        PFLT_CALLBACK_DATA    Data,
     _In_                           PCFLT_RELATED_OBJECTS FltObjects,
     _Flt_CompletionContext_Outptr_ PVOID*                CompletionContext
     );
 
 FLT_POSTOP_CALLBACK_STATUS
-PostCreateOperationCallback (
+PostCreateOperationCallback(
     _Inout_  PFLT_CALLBACK_DATA       Data,
     _In_     PCFLT_RELATED_OBJECTS    FltObjects,
     _In_opt_ PVOID                    CompletionContext,
@@ -108,21 +108,21 @@ PostCreateOperationCallback (
     );
 
 FLT_PREOP_CALLBACK_STATUS
-PreReadWriteOperationCallback (
+PreReadWriteOperationCallback(
     _Inout_                        PFLT_CALLBACK_DATA    Data,
     _In_                           PCFLT_RELATED_OBJECTS FltObjects,
     _Flt_CompletionContext_Outptr_ PVOID*                CompletionContext
     );
 
 FLT_PREOP_CALLBACK_STATUS
-PreQueryInformationOperationCallback (
+PreQueryInformationOperationCallback(
     _Inout_                        PFLT_CALLBACK_DATA    Data,
     _In_                           PCFLT_RELATED_OBJECTS FltObjects,
     _Flt_CompletionContext_Outptr_ PVOID*                CompletionContext
     );
 
 FLT_POSTOP_CALLBACK_STATUS
-PostQueryInformationOperationCallback (
+PostQueryInformationOperationCallback(
     _Inout_  PFLT_CALLBACK_DATA       Data,
     _In_     PCFLT_RELATED_OBJECTS    FltObjects,
     _In_opt_ PVOID                    CompletionContext,
@@ -130,7 +130,7 @@ PostQueryInformationOperationCallback (
     );
 
 FLT_PREOP_CALLBACK_STATUS
-PostDirectoryControlOperationCallback (
+PostDirectoryControlOperationCallback(
     _Inout_  PFLT_CALLBACK_DATA       Data,
     _In_     PCFLT_RELATED_OBJECTS    FltObjects,
     _In_opt_ PVOID                    CompletionContext,

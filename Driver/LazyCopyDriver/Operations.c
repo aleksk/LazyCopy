@@ -72,12 +72,12 @@ typedef struct _CREATE_COMPLETION_CONTEXT
 } CREATE_COMPLETION_CONTEXT, *PCREATE_COMPLETION_CONTEXT;
 
 //------------------------------------------------------------------------
-//  Local function prototype declarations.
+//  Local function prototypes.
 //------------------------------------------------------------------------
 
 static
 VOID
-LcEtwFileAccessed (
+LcEtwFileAccessed(
     _In_ ULONG            ReportRate,
     _In_ PCUNICODE_STRING Path,
     _In_ ULONG            CreateOptions
@@ -86,7 +86,7 @@ LcEtwFileAccessed (
 static
 _Check_return_
 NTSTATUS
-LcGetFileNameInformation (
+LcGetFileNameInformation(
     _Inout_  PFLT_CALLBACK_DATA          Data,
     _Outptr_ PFLT_FILE_NAME_INFORMATION* NameInformation
     );
@@ -123,7 +123,7 @@ static const USHORT DefaultShareAccess   = FILE_SHARE_READ | FILE_SHARE_WRITE;
 //------------------------------------------------------------------------
 
 FLT_PREOP_CALLBACK_STATUS
-PreCreateOperationCallback (
+PreCreateOperationCallback(
     _Inout_                        PFLT_CALLBACK_DATA    Data,
     _In_                           PCFLT_RELATED_OBJECTS FltObjects,
     _Flt_CompletionContext_Outptr_ PVOID*                CompletionContext
@@ -269,8 +269,10 @@ Return value:
     return callbackStatus;
 }
 
+//------------------------------------------------------------------------
+
 FLT_POSTOP_CALLBACK_STATUS
-PostCreateOperationCallback (
+PostCreateOperationCallback(
     _Inout_  PFLT_CALLBACK_DATA       Data,
     _In_     PCFLT_RELATED_OBJECTS    FltObjects,
     _In_opt_ PVOID                    CompletionContext,
@@ -369,7 +371,7 @@ Return Value:
 
             // It is possible to open the default data stream and yet
             // still have a stream name. This is done by appending
-            // ::$DATA to the end of the file name. So if that is the
+            // '::$DATA' to the end of the file name. So if that is the
             // name of our stream, this is really the default stream.
             // Otherwise, it is an alternate stream.
             if (RtlCompareUnicodeString(&(completionContext->NameInfo->Stream), &dataStreamName, TRUE) != 0)
@@ -426,7 +428,7 @@ Return Value:
         if (!NT_SUCCESS(status) && status != STATUS_NOT_A_REPARSE_POINT)
         {
             // Fail I/O request, because something went wrong with untagging or setting context.
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to untag or set context: '%wZ' 0x%X\n", completionContext->NameInfo->Name, status));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to untag or set context: '%wZ' %08X\n", completionContext->NameInfo->Name, status));
 
             FltCancelFileOpen(FltObjects->Instance, FltObjects->FileObject);
             Data->IoStatus.Status      = status;
@@ -451,8 +453,10 @@ Return Value:
     return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
+//------------------------------------------------------------------------
+
 FLT_PREOP_CALLBACK_STATUS
-PreReadWriteOperationCallback (
+PreReadWriteOperationCallback(
     _Inout_                        PFLT_CALLBACK_DATA    Data,
     _In_                           PCFLT_RELATED_OBJECTS FltObjects,
     _Flt_CompletionContext_Outptr_ PVOID*                CompletionContext
@@ -561,7 +565,7 @@ Return value:
     {
         if (!NT_SUCCESS(status) && cancelOnError)
         {
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to fetch file: '%wZ' 0x%X\n", nameInfo->Name, status));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_ERROR_LEVEL, "[LazyCopy] Unable to fetch file: '%wZ' %08X\n", nameInfo->Name, status));
             EventWriteFileNotFetchedEvent(NULL, nameInfo->Name.Buffer, context->RemoteFilePath.Buffer, status);
 
             // Fail I/O operation.
@@ -592,8 +596,10 @@ Return value:
     return callbackStatus;
 }
 
+//------------------------------------------------------------------------
+
 FLT_PREOP_CALLBACK_STATUS
-PreQueryInformationOperationCallback (
+PreQueryInformationOperationCallback(
     _Inout_                        PFLT_CALLBACK_DATA    Data,
     _In_                           PCFLT_RELATED_OBJECTS FltObjects,
     _Flt_CompletionContext_Outptr_ PVOID*                CompletionContext
@@ -606,7 +612,8 @@ Summary:
 
     It is needed to fake the file size requests, so the applications that use memory mapping
     will read full file contents.
-    This function does not affect Explorer behavior.
+
+    This function does not affect the 'Explorer.exe' process behavior.
 
 Arguments:
 
@@ -659,8 +666,10 @@ Return value:
     return callbackStatus;
 }
 
+//------------------------------------------------------------------------
+
 FLT_POSTOP_CALLBACK_STATUS
-PostQueryInformationOperationCallback (
+PostQueryInformationOperationCallback(
     _Inout_  PFLT_CALLBACK_DATA       Data,
     _In_     PCFLT_RELATED_OBJECTS    FltObjects,
     _In_opt_ PVOID                    CompletionContext,
@@ -723,41 +732,55 @@ Return Value:
         switch (Data->Iopb->Parameters.QueryFileInformation.FileInformationClass)
         {
             case FileAllInformation:
+            {
                 if (((PFILE_ALL_INFORMATION)userBuffer)->StandardInformation.EndOfFile.QuadPart == 0)
                 {
                     ((PFILE_ALL_INFORMATION)userBuffer)->StandardInformation.EndOfFile = context->RemoteFileSize;
                 }
 
                 ((PFILE_ALL_INFORMATION)userBuffer)->BasicInformation.FileAttributes &= ~LC_FILE_ATTRIBUTES;
+
                 break;
+            }
             case FileNetworkOpenInformation:
+            {
                 if (((PFILE_NETWORK_OPEN_INFORMATION)userBuffer)->EndOfFile.QuadPart == 0)
                 {
                     ((PFILE_NETWORK_OPEN_INFORMATION)userBuffer)->EndOfFile = context->RemoteFileSize;
                 }
 
                 ((PFILE_NETWORK_OPEN_INFORMATION)userBuffer)->FileAttributes &= ~LC_FILE_ATTRIBUTES;
+
                 break;
+            }
             case FileBasicInformation:
+            {
                 ((PFILE_BASIC_INFORMATION)userBuffer)->FileAttributes &= ~LC_FILE_ATTRIBUTES;
                 break;
+            }
             case FileAttributeTagInformation:
+            {
                 ((PFILE_ATTRIBUTE_TAG_INFORMATION)userBuffer)->FileAttributes &= ~LC_FILE_ATTRIBUTES;
                 break;
+            }
             case FileStandardInformation:
+            {
                 if (((PFILE_STANDARD_INFORMATION)userBuffer)->EndOfFile.QuadPart == 0)
                 {
                     ((PFILE_STANDARD_INFORMATION)userBuffer)->EndOfFile = context->RemoteFileSize;
                 }
 
                 break;
+            }
             case FileEndOfFileInformation:
+            {
                 if (((PFILE_END_OF_FILE_INFORMATION)userBuffer)->EndOfFile.QuadPart == 0)
                 {
                     ((PFILE_END_OF_FILE_INFORMATION)userBuffer)->EndOfFile = context->RemoteFileSize;
                 }
 
                 break;
+            }
         }
     }
     __finally
@@ -771,8 +794,10 @@ Return Value:
     return FLT_POSTOP_FINISHED_PROCESSING;
 }
 
+//------------------------------------------------------------------------
+
 FLT_PREOP_CALLBACK_STATUS
-PostDirectoryControlOperationCallback (
+PostDirectoryControlOperationCallback(
     _Inout_  PFLT_CALLBACK_DATA       Data,
     _In_     PCFLT_RELATED_OBJECTS    FltObjects,
     _In_opt_ PVOID                    CompletionContext,
@@ -824,7 +849,11 @@ Return Value:
             PMDL address = Data->Iopb->Parameters.DirectoryControl.QueryDirectory.MdlAddress;
             if (address != NULL)
             {
+#ifdef PLATFORM_WIN8
+                buffer = MmGetSystemAddressForMdlSafe(address, NormalPagePriority | MdlMappingNoExecute);
+#else
                 buffer = MmGetSystemAddressForMdlSafe(address, NormalPagePriority);
+#endif
             }
         }
 
@@ -841,7 +870,7 @@ Return Value:
                     ProbeForWrite(buffer, bufferSize, sizeof(UCHAR));
                 }
             }
-            #pragma warning(suppress: 6320) // Handle all exceptions.
+            #pragma warning(suppress: __WARNING_EXCEPTIONEXECUTEHANDLER) // Handle all exceptions.
             __except (EXCEPTION_EXECUTE_HANDLER)
             {
                 // Invalid user buffer.
@@ -992,7 +1021,7 @@ Return Value:
 
 static
 VOID
-LcEtwFileAccessed (
+LcEtwFileAccessed(
     _In_ ULONG            ReportRate,
     _In_ PCUNICODE_STRING Path,
     _In_ ULONG            CreateOptions
@@ -1038,10 +1067,12 @@ Return value:
     }
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcGetFileNameInformation (
+LcGetFileNameInformation(
     _Inout_  PFLT_CALLBACK_DATA          Data,
     _Outptr_ PFLT_FILE_NAME_INFORMATION* NameInformation
     )
@@ -1049,24 +1080,25 @@ LcGetFileNameInformation (
 
 Summary:
 
-This function gets the name information used to open the current file.
+    This function gets the name information used to open the current file.
 
 Arguments:
 
-Data            - A pointer to the callback data structure for the I/O operation.
+    Data            - A pointer to the callback data structure for the I/O operation.
 
-NameInformation - A pointer to a caller-allocated variable that receives the
-address of a system-allocated FLT_FILE_NAME_INFORMATION structure
-containing the file name information.
+    NameInformation - A pointer to a caller-allocated variable that receives the
+                      address of a system-allocated FLT_FILE_NAME_INFORMATION structure
+                      containing the file name information.
 
 Return value:
 
-The return value is the status of the operation.
+    The return value is the status of the operation.
 
 --*/
 {
     NTSTATUS                   status   = STATUS_SUCCESS;
     PFLT_FILE_NAME_INFORMATION nameInfo = NULL;
+
     PAGED_CODE();
 
     IF_FALSE_RETURN_RESULT(Data            != NULL, STATUS_INVALID_PARAMETER_1);

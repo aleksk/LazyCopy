@@ -47,21 +47,19 @@ Environment:
 #include "Globals.h"
 
 //------------------------------------------------------------------------
-//  Function prototype declarations.
+//  Function prototypes.
 //------------------------------------------------------------------------
 
 _Check_return_
 NTSTATUS
-LcCreateCommunicationPort (
-    );
+LcCreateCommunicationPort();
 
 VOID
-LcCloseCommunicationPort (
-    );
+LcCloseCommunicationPort();
 
 _Check_return_
 NTSTATUS
-LcOpenFileInUserMode (
+LcOpenFileInUserMode(
     _In_  PCUNICODE_STRING SourceFile,
     _In_  PCUNICODE_STRING TargetFile,
     _Out_ PHANDLE          Handle
@@ -69,13 +67,13 @@ LcOpenFileInUserMode (
 
 _Check_return_
 NTSTATUS
-LcCloseFileHandle (
+LcCloseFileHandle(
     _In_ HANDLE FileHandle
     );
 
 _Check_return_
 NTSTATUS
-LcFetchFileInUserMode (
+LcFetchFileInUserMode(
     _In_  PCUNICODE_STRING SourceFile,
     _In_  PCUNICODE_STRING TargetFile,
     _Out_ PLARGE_INTEGER   BytesCopied

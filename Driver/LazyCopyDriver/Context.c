@@ -60,7 +60,7 @@ Environment:
 //------------------------------------------------------------------------
 
 VOID
-LcContextCleanup (
+LcContextCleanup(
     _In_ PFLT_CONTEXT     Context,
     _In_ FLT_CONTEXT_TYPE ContextType
     )
@@ -106,7 +106,7 @@ Return value:
 
 _Check_return_
 NTSTATUS
-LcFindOrCreateStreamContext (
+LcFindOrCreateStreamContext(
     _In_      PFLT_CALLBACK_DATA  Data,
     _In_      BOOLEAN             CreateIfNotFound,
     _When_(CreateIfNotFound,  _In_)
@@ -227,9 +227,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcCreateStreamContext (
+LcCreateStreamContext(
     _In_     PLARGE_INTEGER      RemoteFileSize,
     _In_     PUNICODE_STRING     RemoteFilePath,
     _In_     BOOLEAN             UseCustomHandler,
@@ -296,9 +298,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcGetStreamContext (
+LcGetStreamContext(
     _In_     PFLT_CALLBACK_DATA  Data,
     _Outptr_ PLC_STREAM_CONTEXT* StreamContext
     )

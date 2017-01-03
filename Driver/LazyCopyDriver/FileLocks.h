@@ -28,9 +28,9 @@ Module Name:
 
 Abstract:
 
-    Contains helper function declarations for maintaining custom file locks
-    to handle situations, when multiple threads are trying to access file
-    that is being fetched from a remote source.
+    Contains file locking helper functions for maintaining custom file
+    locks to handle situations, when multiple threads are trying to access
+    file that is being fetched from a remote source.
 
 Environment:
 
@@ -49,27 +49,25 @@ Environment:
 #include "Globals.h"
 
 //------------------------------------------------------------------------
-//  File locking function prototype declarations.
+//  File locking function prototypes.
 //------------------------------------------------------------------------
 
 _Check_return_
 NTSTATUS
-LcInitializeFileLocks (
-    );
+LcInitializeFileLocks();
 
 VOID
-LcFreeFileLocks (
-    );
+LcFreeFileLocks();
 
 _Check_return_
 NTSTATUS
-LcGetFileLock (
+LcGetFileLock(
     _In_     PCUNICODE_STRING FileName,
     _Outptr_ PKEVENT*         Event
     );
 
 VOID
-LcReleaseFileLock (
+LcReleaseFileLock(
     _In_ PKEVENT Event
     );
 

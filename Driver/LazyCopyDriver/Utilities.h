@@ -28,7 +28,7 @@ Module Name:
 
 Abstract:
 
-    Contains common helper function prototype declarations.
+    Contains common helper function prototypes.
 
 Environment:
 
@@ -47,12 +47,12 @@ Environment:
 #include "Globals.h"
 
 //------------------------------------------------------------------------
-//  Memory allocation/freeing function prototype declarations.
+//  Memory allocation/freeing function prototypes.
 //------------------------------------------------------------------------
 
 _Check_return_
 NTSTATUS
-LcAllocateBuffer (
+LcAllocateBuffer(
     _Outptr_result_buffer_(Size) PVOID*    Buffer,
     _In_                         POOL_TYPE PoolType,
     _In_                         SIZE_T    Size,
@@ -61,63 +61,63 @@ LcAllocateBuffer (
 
 _Check_return_
 NTSTATUS
-LcAllocateNonPagedBuffer (
+LcAllocateNonPagedBuffer(
     _Outptr_result_buffer_(Size) PVOID* Buffer,
     _In_                         SIZE_T Size
     );
 
 _Check_return_
 NTSTATUS
-LcAllocateNonPagedAlignedBuffer (
+LcAllocateNonPagedAlignedBuffer(
     _In_                         PFLT_INSTANCE Instance,
     _Outptr_result_buffer_(Size) PVOID*        Buffer,
     _In_                         SIZE_T        Size
     );
 
 VOID
-LcFreeBuffer (
+LcFreeBuffer(
     _Inout_ PVOID Buffer,
     _In_    ULONG Tag
     );
 
 VOID
-LcFreeNonPagedBuffer (
+LcFreeNonPagedBuffer(
     _Inout_ PVOID Buffer
     );
 
 VOID
-LcFreeNonPagedAlignedBuffer (
+LcFreeNonPagedAlignedBuffer(
     _In_    PFLT_INSTANCE Instance,
     _Inout_ PVOID         Buffer
     );
 
 _Check_return_
 NTSTATUS
-LcAllocateResource (
+LcAllocateResource(
     _Outptr_ PERESOURCE* Resource
     );
 
 VOID
-LcFreeResource (
+LcFreeResource(
     _In_ PERESOURCE Resource
     );
 
 _Check_return_
 NTSTATUS
-LcAllocateUnicodeString (
+LcAllocateUnicodeString(
     _Inout_ PUNICODE_STRING String,
     _In_    USHORT          Size
     );
 
 _Check_return_
 NTSTATUS
-LcCopyUnicodeString (
+LcCopyUnicodeString(
     _Inout_ PUNICODE_STRING  DestinationString,
     _In_    PCUNICODE_STRING SourceString
     );
 
 VOID
-LcFreeUnicodeString (
+LcFreeUnicodeString(
     _Inout_ PUNICODE_STRING String
     );
 

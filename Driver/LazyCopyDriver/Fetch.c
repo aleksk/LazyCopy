@@ -80,13 +80,13 @@ typedef struct _WRITE_CALLBACK_CONTEXT
 } WRITE_CALLBACK_CONTEXT, *PWRITE_CALLBACK_CONTEXT;
 
 //------------------------------------------------------------------------
-//  Local function prototype declarations.
+//  Local function prototypes.
 //------------------------------------------------------------------------
 
 static
 _Check_return_
 NTSTATUS
-LcOpenFile (
+LcOpenFile(
     _In_  PUNICODE_STRING SourceFile,
     _In_  PUNICODE_STRING TargetFile,
     _Out_ PHANDLE         Handle
@@ -95,7 +95,7 @@ LcOpenFile (
 static
 _Check_return_
 NTSTATUS
-LcFetchFileByChunks (
+LcFetchFileByChunks(
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _In_  HANDLE                SourceFileHandle,
     _In_  PLARGE_INTEGER        SourceFileSize,
@@ -104,7 +104,7 @@ LcFetchFileByChunks (
 
 static
 VOID
-LcWriteCallback (
+LcWriteCallback(
     _In_ PFLT_CALLBACK_DATA CallbackData,
     _In_ PFLT_CONTEXT       Context
     );
@@ -112,7 +112,7 @@ LcWriteCallback (
 static
 _Check_return_
 NTSTATUS
-LcGetNextAvailableChunk (
+LcGetNextAvailableChunk(
     _In_     PFLT_INSTANCE  Instance,
     _In_     PLIST_ENTRY    ListHead,
     _Inout_  PFILE_CHUNK*   CurrentChunk,
@@ -132,7 +132,7 @@ LcGetNextAvailableChunk (
 static
 _Check_return_
 NTSTATUS
-LcInitializeChunksList (
+LcInitializeChunksList(
     _In_    PFLT_INSTANCE Instance,
     _In_    PLIST_ENTRY   ListHead,
     _In_    LARGE_INTEGER FileSize,
@@ -141,7 +141,7 @@ LcInitializeChunksList (
 
 static
 VOID
-LcClearChunksList (
+LcClearChunksList(
     _In_ PFLT_INSTANCE Instance,
     _In_ PLIST_ENTRY   ListHead
     );
@@ -149,7 +149,7 @@ LcClearChunksList (
 static
 _Check_return_
 NTSTATUS
-LcAddNewChunk (
+LcAddNewChunk(
     _In_     PFLT_INSTANCE  Instance,
     _In_     PLIST_ENTRY    Entry,
     _In_     PLARGE_INTEGER RemainingBytes,
@@ -194,7 +194,7 @@ static const ULONG TimeoutMilliseconds = 15000;
 _Check_return_
 _IRQL_requires_(PASSIVE_LEVEL)
 NTSTATUS
-LcFetchRemoteFile (
+LcFetchRemoteFile(
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _In_  PUNICODE_STRING       SourceFile,
     _In_  PUNICODE_STRING       TargetFile,
@@ -305,7 +305,7 @@ Return Value:
 static
 _Check_return_
 NTSTATUS
-LcOpenFile (
+LcOpenFile(
     _In_  PUNICODE_STRING SourceFile,
     _In_  PUNICODE_STRING TargetFile,
     _Out_ PHANDLE         Handle
@@ -314,7 +314,7 @@ LcOpenFile (
 
 Summary:
 
-    This function tries to open the 'FilePath' given.
+    This function tries to open the 'SourceFile' given.
 
     If open operation fails in the current context, it asks for the user-mode service
     to open that file.
@@ -367,7 +367,7 @@ Return Value:
         {
             NTSTATUS notificationStatus = STATUS_SUCCESS;
 
-            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] '%wZ' cannot be accessed by the system, trying to use user-mode service instead.\n", FilePath));
+            LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_WARNING_LEVEL, "[LazyCopy] '%wZ' cannot be accessed by the system, trying to use user-mode service instead\n", FilePath));
 
             notificationStatus = LcOpenFileInUserMode(SourceFile, TargetFile, &fileHandle);
 
@@ -398,10 +398,12 @@ Return Value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcFetchFileByChunks (
+LcFetchFileByChunks(
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _In_  HANDLE                SourceFileHandle,
     _In_  PLARGE_INTEGER        SourceFileSize,
@@ -714,9 +716,11 @@ Return Value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 VOID
-LcWriteCallback (
+LcWriteCallback(
     _In_ PFLT_CALLBACK_DATA CallbackData,
     _In_ PFLT_CONTEXT       Context
     )
@@ -754,10 +758,12 @@ Return Value:
     KeSetEvent(context->Event, IO_NO_INCREMENT, FALSE);
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcGetNextAvailableChunk (
+LcGetNextAvailableChunk(
     _In_     PFLT_INSTANCE  Instance,
     _In_     PLIST_ENTRY    ListHead,
     _Inout_  PFILE_CHUNK*   CurrentChunk,
@@ -875,10 +881,12 @@ Return Value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcInitializeChunksList (
+LcInitializeChunksList(
     _In_    PFLT_INSTANCE Instance,
     _In_    PLIST_ENTRY   ListHead,
     _In_    LARGE_INTEGER FileSize,
@@ -955,9 +963,11 @@ Return Value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 static
 VOID
-LcClearChunksList (
+LcClearChunksList(
     _In_ PFLT_INSTANCE Instance,
     _In_ PLIST_ENTRY   ListHead
     )
@@ -1004,10 +1014,12 @@ Return Value:
     return;
 }
 
+//------------------------------------------------------------------------
+
 static
 _Check_return_
 NTSTATUS
-LcAddNewChunk (
+LcAddNewChunk(
     _In_     PFLT_INSTANCE  Instance,
     _In_     PLIST_ENTRY    Entry,
     _In_     PLARGE_INTEGER RemainingBytes,

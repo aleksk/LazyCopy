@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SampleClient")]
+[assembly: AssemblyTitle("CreateLcFile")]
 [assembly: AssemblyDescription("Sample application that can create stub files for the LazyCopy driver.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SampleClient")]
+[assembly: AssemblyProduct("CreateLcFile")]
 [assembly: AssemblyCopyright("Copyright © 2015 Aleksey Kabanov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

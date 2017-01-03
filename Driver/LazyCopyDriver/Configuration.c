@@ -57,6 +57,12 @@ typedef struct _DRIVER_CONFIGURATION_DATA
     // We don't want to rely on the 'Globals.Lock' lock in the configuraiton methods.
     PERESOURCE                       Lock;
 
+    // Current operation mode.
+    __volatile DRIVER_OPERATION_MODE OperationMode;
+
+    // Probability of raising the FileAccessed ETW event.
+    __volatile ULONG                 ReportRate;
+
     // Registry path to read the driver configuration parameters from,
     // when the 'LcReadConfigurationFromRegistry' function is called.
     UNICODE_STRING                   RegistryPath;
@@ -67,11 +73,6 @@ typedef struct _DRIVER_CONFIGURATION_DATA
     // List of path roots that should be monitored for file access operations.
     LIST_ENTRY                       PathsToWatch;
 
-    // Probability of raising the FileAccessed ETW event.
-    __volatile ULONG                 ReportRate;
-
-    // Current operation mode.
-    __volatile DRIVER_OPERATION_MODE OperationMode;
 } DRIVER_CONFIGURATION_DATA, *PDRIVER_CONFIGURATION_DATA;
 
 //
@@ -93,13 +94,13 @@ typedef struct _PATH_TO_WATCH_ENTRY
 } PATH_TO_WATCH_ENTRY, *PPATH_TO_WATCH_ENTRY;
 
 //------------------------------------------------------------------------
-//  Local function declarations.
+//  Local functions.
 //------------------------------------------------------------------------
 
 static
 _Check_return_
 NTSTATUS
-LcValidatePath (
+LcValidatePath(
     _In_ PCUNICODE_STRING Path
     );
 
@@ -151,7 +152,7 @@ static DRIVER_CONFIGURATION_DATA Configuration = { 0 };
 
 _Check_return_
 NTSTATUS
-LcInitializeConfiguration (
+LcInitializeConfiguration(
     _In_ PCUNICODE_STRING RegistryPath
     )
 /*++
@@ -205,9 +206,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeConfiguration (
-    )
+LcFreeConfiguration()
 /*++
 
 Summary:
@@ -260,8 +262,7 @@ Return value:
 
 _Check_return_
 NTSTATUS
-LcReadConfigurationFromRegistry (
-    )
+LcReadConfigurationFromRegistry()
 /*++
 
 Summary:
@@ -297,7 +298,7 @@ Return value:
     PAGED_CODE();
 
     IF_FALSE_RETURN_RESULT(NT_SUCCESS(RtlUnicodeStringValidate(&Configuration.RegistryPath)), STATUS_INVALID_PARAMETER);
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Reading configuration from Registry: '%wZ'\n", Configuration.RegistryPath));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Reading configuration from the registry key: '%wZ'\n", Configuration.RegistryPath));
 
     FltAcquireResourceExclusive(Configuration.Lock);
 
@@ -313,14 +314,14 @@ Return value:
         {
             if (status == STATUS_INVALID_PARAMETER)
             {
-                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] ReportRate value not found.\n"));
+                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] ReportRate value not found\n"));
 
                 LcSetReportRate(0);
                 status = STATUS_SUCCESS;
             }
             else
             {
-                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unable to get ReportRate value: 0x%X\n", status));
+                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unable to get ReportRate value: %08X\n", status));
                 __leave;
             }
         }
@@ -339,14 +340,14 @@ Return value:
         {
             if (status == STATUS_INVALID_PARAMETER)
             {
-                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] OperationMode value not found.\n"));
+                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] OperationMode value not found\n"));
 
                 LcSetOperationMode(DriverDisabled);
                 status = STATUS_SUCCESS;
             }
             else
             {
-                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unable to get OperationMode value: 0x%X\n", status));
+                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unable to get OperationMode value: %08X\n", status));
                 __leave;
             }
         }
@@ -367,12 +368,12 @@ Return value:
         {
             if (status == STATUS_INVALID_PARAMETER)
             {
-                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] WatchPaths value not found.\n"));
+                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] WatchPaths value not found\n"));
                 status = STATUS_SUCCESS;
             }
             else
             {
-                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unable to get WatchPaths value: 0x%X\n", status));
+                LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Unable to get WatchPaths value: %08X\n", status));
                 __leave;
             }
         }
@@ -428,7 +429,7 @@ Return value:
 
 _Check_return_
 NTSTATUS
-LcAddTrustedProcess (
+LcAddTrustedProcess(
     _In_ HANDLE ProcessId
     )
 /*++
@@ -487,8 +488,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcRemoveTrustedProcess (
+LcRemoveTrustedProcess(
     _In_ HANDLE ProcessId
     )
 /*++
@@ -545,9 +548,11 @@ Return value:
     }
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 BOOLEAN
-LcIsProcessTrusted (
+LcIsProcessTrusted(
     _In_ HANDLE ProcessId
     )
 /*++
@@ -605,9 +610,10 @@ Return value:
     return result;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcClearTrustedProcesses (
-    )
+LcClearTrustedProcesses()
 /*++
 
 Summary:
@@ -652,7 +658,7 @@ Return value:
 
 _Check_return_
 NTSTATUS
-LcAddPathToWatch (
+LcAddPathToWatch(
     _In_ PCUNICODE_STRING Path
     )
 /*++
@@ -661,7 +667,7 @@ Summary:
 
     This function adds the path given to the list of paths to watch.
 
-    When an empty file is accessed such path, the FileAccessed ETW event is raised.
+    When a managed file is accessed such path, the FileAccessed ETW event is raised.
 
 Arguments:
 
@@ -722,9 +728,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 BOOLEAN
-LcIsPathWatched (
+LcIsPathWatched(
     _In_ PCUNICODE_STRING Path
     )
 /*++
@@ -782,9 +790,10 @@ Return value:
     return result;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcClearPathsToWatch (
-    )
+LcClearPathsToWatch()
 /*++
 
 Summary:
@@ -831,7 +840,7 @@ Return value:
 //------------------------------------------------------------------------
 
 VOID
-LcSetOperationMode (
+LcSetOperationMode(
     _In_ DRIVER_OPERATION_MODE Value
     )
 /*++
@@ -853,13 +862,14 @@ Return value:
     PAGED_CODE();
 
     Configuration.OperationMode = Value;
-    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Configuration.OperationMode is set to: 0x%X\n", (ULONG)Value));
+    LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Configuration.OperationMode is set to: %08X\n", (ULONG)Value));
 }
+
+//------------------------------------------------------------------------
 
 _Check_return_
 DRIVER_OPERATION_MODE
-LcGetOperationMode (
-    )
+LcGetOperationMode()
 /*++
 
 Summary:
@@ -886,7 +896,7 @@ Return value:
 //------------------------------------------------------------------------
 
 VOID
-LcSetReportRate (
+LcSetReportRate(
     _In_ ULONG Value
     )
 /*++
@@ -898,7 +908,7 @@ Summary:
 Arguments:
 
     Value - The new report rate value.
-            This value belongs to the [0; 10,000] interval and represents the number
+            This value belongs to the [0; 10000] interval and represents the number
             of chances in 10,000 that the current driver will report ETW for a file
             access operation.
 
@@ -919,9 +929,11 @@ Return value:
     LOG((DPFLTR_IHVDRIVER_ID, DPFLTR_TRACE_LEVEL, "[LazyCopy] Configuration.ReportRate is set to: %u\n", Value));
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 ULONG
-LcGetReportRateForPath (
+LcGetReportRateForPath(
     _In_ PCUNICODE_STRING Path
     )
 /*++
@@ -955,7 +967,7 @@ Return value:
 static
 _Check_return_
 NTSTATUS
-LcValidatePath (
+LcValidatePath(
     _In_ PCUNICODE_STRING Path
     )
 /*++
@@ -974,6 +986,7 @@ Return value:
 
     STATUS_SUCCESS - If the 'Path' is a valid UNICODE_STRING and ends with directory
                      separator.
+
     Anything else  - Otherwise.
 
 --*/

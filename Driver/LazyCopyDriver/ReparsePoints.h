@@ -28,8 +28,8 @@ Module Name:
 
 Abstract:
 
-    Contains helper function declarations for managing custom reparse
-    points used by the current minifilter.
+    Contains helper functions for managing custom reparse points used
+    by the current minifilter.
 
 Environment:
 
@@ -48,12 +48,12 @@ Environment:
 #include "Globals.h"
 
 //------------------------------------------------------------------------
-//  Reparse points management function prototype declarations.
+//  Reparse points management function prototypes.
 //------------------------------------------------------------------------
 
 _Check_return_
 NTSTATUS
-LcGetReparsePointData (
+LcGetReparsePointData(
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _Out_ PLARGE_INTEGER        RemoteFileSize,
     _Out_ PUNICODE_STRING       RemoteFilePath,
@@ -63,7 +63,7 @@ LcGetReparsePointData (
 _Check_return_
 _IRQL_requires_(PASSIVE_LEVEL)
 NTSTATUS
-LcUntagFile (
+LcUntagFile(
     _In_ PCFLT_RELATED_OBJECTS FltObjects,
     _In_ PUNICODE_STRING       FileName
     );

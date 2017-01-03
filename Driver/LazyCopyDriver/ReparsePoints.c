@@ -28,8 +28,8 @@ Module Name:
 
 Abstract:
 
-    Contains helper function definitions for managing custom reparse
-    points used by the current minifilter.
+    Contains helper functions for managing custom reparse points used
+    by the current minifilter.
 
 Environment:
 
@@ -68,7 +68,6 @@ typedef struct _LC_REPARSE_DATA
     // Size, in bytes, of the reparse data in the 'ReparseBuffer' member.
     USHORT ReparseDataLength;
 
-    // Reserved.
     USHORT Reserved;
 
     // GUID that uniquely identifies the owner of the reparse point.
@@ -93,7 +92,7 @@ typedef struct _LC_REPARSE_DATA
 
 _Check_return_
 NTSTATUS
-LcGetReparsePointData (
+LcGetReparsePointData(
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _Out_ PLARGE_INTEGER        RemoteFileSize,
     _Out_ PUNICODE_STRING       RemoteFilePath,
@@ -190,10 +189,12 @@ Return Value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 _IRQL_requires_(PASSIVE_LEVEL)
 NTSTATUS
-LcUntagFile (
+LcUntagFile(
     _In_ PCFLT_RELATED_OBJECTS FltObjects,
     _In_ PUNICODE_STRING       FileName
     )

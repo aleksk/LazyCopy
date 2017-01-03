@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SampleClient</RootNamespace>
-    <AssemblyName>SampleClient</AssemblyName>
+    <AssemblyName>CreateLcFile</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -23,7 +23,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\SampleClient\SampleClient.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\SampleClient\CreateLcFile.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\SampleClient\SampleClient.XML</DocumentationFile>
+    <DocumentationFile>..\..\bin\SampleClient\CreateLcFile.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LongPath">

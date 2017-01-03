@@ -81,7 +81,7 @@ Environment:
     if (!(_exp))                              \
     {                                         \
         FLT_ASSERTMSG(#_exp, FALSE);          \
-        return result;                        \
+        return (result);                      \
     }
 
 //
@@ -91,7 +91,7 @@ Environment:
     if ((_exp))                              \
     {                                        \
         FLT_ASSERTMSG(#_exp, FALSE);         \
-        return result;                       \
+        return (result);                     \
     }
 
 //
@@ -101,7 +101,7 @@ Environment:
 #define NT_IF_TRUE_LEAVE(_exp, result)       \
     if ((_exp))                              \
     {                                        \
-        status = result;                     \
+        status = (result);                   \
         __leave;                             \
     }
 
@@ -112,7 +112,7 @@ Environment:
 #define NT_IF_FALSE_LEAVE(_exp, result)      \
     if (!(_exp))                             \
     {                                        \
-        status = result;                     \
+        status = (result);                   \
         __leave;                             \
     }
 

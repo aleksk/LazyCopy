@@ -28,7 +28,7 @@ Module Name:
 
 Abstract:
 
-    Contains Registry helper function declarations.
+    Contains Registry helper functions.
 
 Environment:
 
@@ -47,12 +47,12 @@ Environment:
 #include "Globals.h"
 
 //------------------------------------------------------------------------
-//  Function prototype declarations.
+//  Function prototypes.
 //------------------------------------------------------------------------
 
 _Check_return_
 NTSTATUS
-LcGetRegistryValue (
+LcGetRegistryValue(
     _In_     PUNICODE_STRING                 RegistryPath,
     _In_     PUNICODE_STRING                 RegistryValueName,
     _Outptr_ PKEY_VALUE_PARTIAL_INFORMATION* ValueBuffer
@@ -60,7 +60,7 @@ LcGetRegistryValue (
 
 _Check_return_
 NTSTATUS
-LcGetRegistryValueDWord (
+LcGetRegistryValueDWord(
     _In_  PUNICODE_STRING RegistryPath,
     _In_  PUNICODE_STRING RegistryValueName,
     _Out_ PULONG          Value
@@ -68,7 +68,7 @@ LcGetRegistryValueDWord (
 
 _Check_return_
 NTSTATUS
-LcGetRegistryValueString (
+LcGetRegistryValueString(
     _In_  PUNICODE_STRING RegistryPath,
     _In_  PUNICODE_STRING RegistryValueName,
     _Out_ PUNICODE_STRING Value

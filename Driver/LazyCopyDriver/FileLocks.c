@@ -28,9 +28,9 @@ Module Name:
 
 Abstract:
 
-    Contains file locking helper function definitions for maintaining
-    custom file locks to handle situations, when multiple threads are
-    trying to access file that is being fetched from a remote source.
+    Contains file locking helper functions for maintaining custom file
+    locks to handle situations, when multiple threads are trying to access
+    file that is being fetched from a remote source.
 
 Environment:
 
@@ -55,7 +55,6 @@ Environment:
 typedef struct _FILE_LOCK_ENTRY
 {
     // Reference count for this entry.
-    // NOTE: Make sure it's 32-bit aligned, so Interlocked operations actually work.
     __volatile LONG RefCount;
 
     // Path to the locked file.
@@ -94,8 +93,7 @@ static LIST_ENTRY FileLocksList     = { 0 };
 
 _Check_return_
 NTSTATUS
-LcInitializeFileLocks (
-    )
+LcInitializeFileLocks()
 /*++
 
 Summary:
@@ -122,9 +120,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeFileLocks (
-    )
+LcFreeFileLocks()
 /*++
 
 Summary:
@@ -167,9 +166,11 @@ Return value:
     }
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcGetFileLock (
+LcGetFileLock(
     _In_     PCUNICODE_STRING FileName,
     _Outptr_ PKEVENT*         Event
     )
@@ -261,8 +262,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcReleaseFileLock (
+LcReleaseFileLock(
     _In_ PKEVENT Event
     )
 /*++

@@ -28,7 +28,7 @@ Module Name:
 
 Abstract:
 
-    Contains common helper function definitions.
+    Contains common helper functions.
 
 Environment:
 
@@ -66,7 +66,7 @@ Environment:
 
 _Check_return_
 NTSTATUS
-LcAllocateBuffer (
+LcAllocateBuffer(
     _Outptr_result_buffer_(Size) PVOID*    Buffer,
     _In_                         POOL_TYPE PoolType,
     _In_                         SIZE_T    Size,
@@ -83,7 +83,7 @@ Arguments:
     Buffer   - A pointer to a variable that receives the buffer allocated.
 
     PoolType - Type of the pool to allocate memory from.
-               Must be 'PagedPool' or 'NonPagedPool'.
+               Must be 'PagedPool' or 'NonPagedPoolNx'.
 
     Size     - Supplies the size of the buffer to be allocated.
 
@@ -94,7 +94,7 @@ Return value:
     STATUS_SUCCESS                - Success.
     STATUS_INSUFFICIENT_RESOURCES - Failure. Unable to allocate memory.
     STATUS_INVALID_PARAMETER_1    - Failure. The 'Buffer' parameter is NULL.
-    STATUS_INVALID_PARAMETER_2    - Failure. The 'PoolType' parameter is not 'PagedPool' or 'NonPagedPool'.
+    STATUS_INVALID_PARAMETER_2    - Failure. The 'PoolType' parameter is not 'PagedPool' or 'NonPagedPoolNx'.
     STATUS_INVALID_PARAMETER_3    - Failure. The 'Size' parameter is equal to zero.
 
 --*/
@@ -103,9 +103,9 @@ Return value:
 
     PAGED_CODE();
 
-    IF_FALSE_RETURN_RESULT(Buffer != NULL,                                    STATUS_INVALID_PARAMETER_1);
-    IF_FALSE_RETURN_RESULT(PoolType == PagedPool || PoolType == NonPagedPool, STATUS_INVALID_PARAMETER_2);
-    IF_FALSE_RETURN_RESULT(Size != 0,                                         STATUS_INVALID_PARAMETER_3);
+    IF_FALSE_RETURN_RESULT(Buffer != NULL,                                      STATUS_INVALID_PARAMETER_1);
+    IF_FALSE_RETURN_RESULT(PoolType == PagedPool || PoolType == NonPagedPoolNx, STATUS_INVALID_PARAMETER_2);
+    IF_FALSE_RETURN_RESULT(Size != 0,                                           STATUS_INVALID_PARAMETER_3);
 
     allocatedBuffer = ExAllocatePoolWithTag(PoolType, Size, Tag);
     IF_FALSE_RETURN_RESULT(allocatedBuffer != NULL, STATUS_INSUFFICIENT_RESOURCES);
@@ -117,9 +117,11 @@ Return value:
     return STATUS_SUCCESS;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcAllocateNonPagedBuffer (
+LcAllocateNonPagedBuffer(
     _Outptr_result_buffer_(Size) PVOID* Buffer,
     _In_                         SIZE_T Size
     )
@@ -151,7 +153,7 @@ Return value:
     IF_FALSE_RETURN_RESULT(Buffer != NULL, STATUS_INVALID_PARAMETER_1);
     IF_FALSE_RETURN_RESULT(Size   != 0,    STATUS_INVALID_PARAMETER_2);
 
-    allocatedBuffer = ExAllocatePoolWithTag(NonPagedPool, Size, LC_BUFFER_NON_PAGED_POOL_TAG);
+    allocatedBuffer = ExAllocatePoolWithTag(NonPagedPoolNx, Size, LC_BUFFER_NON_PAGED_POOL_TAG);
     IF_FALSE_RETURN_RESULT(allocatedBuffer != NULL, STATUS_INSUFFICIENT_RESOURCES);
 
     // Zero buffer and set the result value.
@@ -161,9 +163,11 @@ Return value:
     return STATUS_SUCCESS;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcAllocateNonPagedAlignedBuffer (
+LcAllocateNonPagedAlignedBuffer(
     _In_                         PFLT_INSTANCE Instance,
     _Outptr_result_buffer_(Size) PVOID*        Buffer,
     _In_                         SIZE_T        Size
@@ -202,7 +206,7 @@ Return value:
     IF_FALSE_RETURN_RESULT(Buffer   != NULL, STATUS_INVALID_PARAMETER_2);
     IF_FALSE_RETURN_RESULT(Size     != 0,    STATUS_INVALID_PARAMETER_3);
 
-    allocatedBuffer = FltAllocatePoolAlignedWithTag(Instance, NonPagedPool, Size, LC_BUFFER_NON_PAGED_POOL_TAG);
+    allocatedBuffer = FltAllocatePoolAlignedWithTag(Instance, NonPagedPoolNx, Size, LC_BUFFER_NON_PAGED_POOL_TAG);
     IF_FALSE_RETURN_RESULT(allocatedBuffer != NULL, STATUS_INSUFFICIENT_RESOURCES);
 
     // Zero buffer and set the result value.
@@ -212,8 +216,10 @@ Return value:
     return STATUS_SUCCESS;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeBuffer (
+LcFreeBuffer(
     _Inout_ PVOID Buffer,
     _In_    ULONG Tag
     )
@@ -242,8 +248,10 @@ Return value:
     ExFreePoolWithTag(Buffer, Tag);
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeNonPagedBuffer (
+LcFreeNonPagedBuffer(
     _Inout_ PVOID Buffer
     )
 /*++
@@ -272,8 +280,10 @@ Return value:
     ExFreePoolWithTag(Buffer, LC_BUFFER_NON_PAGED_POOL_TAG);
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeNonPagedAlignedBuffer (
+LcFreeNonPagedAlignedBuffer(
     _In_    PFLT_INSTANCE Instance,
     _Inout_ PVOID         Buffer
     )
@@ -307,9 +317,11 @@ Return value:
     FltFreePoolAlignedWithTag(Instance, Buffer, LC_BUFFER_NON_PAGED_POOL_TAG);
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcAllocateResource (
+LcAllocateResource(
     _Outptr_ PERESOURCE* Resource
     )
 /*++
@@ -339,7 +351,7 @@ Return value:
 
     __try
     {
-        status = LcAllocateBuffer((PVOID*)&resource, NonPagedPool, sizeof(ERESOURCE), LC_ERESOURCE_NON_PAGED_POOL_TAG);
+        status = LcAllocateBuffer((PVOID*)&resource, NonPagedPoolNx, sizeof(ERESOURCE), LC_ERESOURCE_NON_PAGED_POOL_TAG);
         if (!NT_SUCCESS(status))
         {
             freeBuffer = TRUE;
@@ -374,8 +386,10 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeResource (
+LcFreeResource(
     _In_ PERESOURCE Resource
     )
 /*++
@@ -405,9 +419,11 @@ Return value:
     LcFreeBuffer(Resource, LC_ERESOURCE_NON_PAGED_POOL_TAG);
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcAllocateUnicodeString (
+LcAllocateUnicodeString(
     _Inout_ PUNICODE_STRING String,
     _In_    USHORT          Size
     )
@@ -444,7 +460,7 @@ Return value:
     IF_FALSE_RETURN_RESULT(Size != 0,                 STATUS_INVALID_PARAMETER_2);
     IF_FALSE_RETURN_RESULT(Size % sizeof(WCHAR) == 0, STATUS_INVALID_PARAMETER_2);
 
-    NT_IF_FAIL_RETURN(LcAllocateBuffer((PVOID*)&String->Buffer, NonPagedPool, Size, LC_STRING_NON_PAGED_POOL_TAG));
+    NT_IF_FAIL_RETURN(LcAllocateBuffer((PVOID*)&String->Buffer, NonPagedPoolNx, Size, LC_STRING_NON_PAGED_POOL_TAG));
 
     String->Length        = 0;
     String->MaximumLength = Size;
@@ -454,9 +470,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcCopyUnicodeString (
+LcCopyUnicodeString(
     _Inout_ PUNICODE_STRING  DestinationString,
     _In_    PCUNICODE_STRING SourceString
     )
@@ -494,14 +512,16 @@ Return value:
 
     NT_IF_FAIL_RETURN(LcAllocateUnicodeString(DestinationString, min(SourceString->Length, SourceString->MaximumLength) + sizeof(WCHAR)));
 
-    #pragma warning(suppress: 6387) // '_Param_(1)->Buffer' could be '0'.
+    #pragma warning(suppress: __WARNING_INVALID_PARAM_VALUE_1) // '_Param_(1)->Buffer' could be '0'.
     RtlCopyUnicodeString(DestinationString, SourceString);
 
     return status;
 }
 
+//------------------------------------------------------------------------
+
 VOID
-LcFreeUnicodeString (
+LcFreeUnicodeString(
     _Inout_ PUNICODE_STRING UniString
     )
 /*++

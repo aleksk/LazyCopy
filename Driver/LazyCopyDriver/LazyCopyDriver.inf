@@ -30,7 +30,7 @@ Class             = "ActivityMonitor"
 ClassGuid         = {b86dff51-a31e-4bac-b3cf-e8cfe75c9fc2}
 Provider          = %ManufacturerName%
 DriverPackageType = FileSystemMinifilter
-DriverVer         = 06/20/2016,1.0.0.0
+DriverVer         = 12/26/2016,1.0.0.0
 CatalogFile       = LazyCopyDriver.cat
 
 [DestinationDirs]
@@ -99,16 +99,18 @@ HKR,"Instances\"%Instance1.Name%,"Altitude",0x00000000,%Instance1.Altitude%
 HKR,"Instances\"%Instance1.Name%,"Flags",0x00010001,%Instance1.Flags%
 
 ; Driver-specific keys.
-HKR,,"OperationMode",0x00010001,0x1  ; REG_DWORD
-HKR,,"ReportRate",0x00010001,0x2710  ; REG_DWORD
+HKR,,"OperationMode",0x00010001,0x1  ; REG_DWORD, 1 - FetchEnabled.
+HKR,,"ReportRate",0x00010001,0x2710  ; REG_DWORD, Event rate per 10k calls.
 HKR,,"WatchPaths",0x00010000,""      ; REG_MULTI_SZ
 
 ;;
 ;; String sections.
 ;;
 
+;; TODO: Update the information below.
+
 [Strings]
-ManufacturerName      = "YOUR_NAME_HERE"
+ManufacturerName      = "Contoso"
 ServiceDescription    = "Driver for fetching files lazily from the remote source"
 ServiceName           = "LazyCopyDriver"
 DriverName            = "LazyCopyDriver"
@@ -117,5 +119,5 @@ DiskId1               = "LazyCopy Driver Installation Disk"
 ; Instances-specific information.
 DefaultInstance       = "LazyCopyDriver"
 Instance1.Name        = "LazyCopyDriver"
-Instance1.Altitude    = "180610"    ; Before releasing your driver, make sure you contact Microsoft to register it and get this value.
+Instance1.Altitude    = "180610"    ; TODO: Before releasing your driver, make sure you contact Microsoft to register it and get this value.
 Instance1.Flags       = 0x0         ; Automatically attach.

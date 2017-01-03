@@ -68,18 +68,18 @@ typedef struct _STREAM_CONTEXT
 } LC_STREAM_CONTEXT, *PLC_STREAM_CONTEXT;
 
 //------------------------------------------------------------------------
-//  Function prototype declarations.
+//  Function prototypes.
 //------------------------------------------------------------------------
 
 VOID
-LcContextCleanup (
+LcContextCleanup(
     _In_ PFLT_CONTEXT     Context,
     _In_ FLT_CONTEXT_TYPE ContextType
     );
 
 _Check_return_
 NTSTATUS
-LcFindOrCreateStreamContext (
+LcFindOrCreateStreamContext(
     _In_      PFLT_CALLBACK_DATA  Data,
     _In_      BOOLEAN             CreateIfNotFound,
     _When_(CreateIfNotFound,  _In_)
@@ -95,7 +95,7 @@ LcFindOrCreateStreamContext (
 
 _Check_return_
 NTSTATUS
-LcCreateStreamContext (
+LcCreateStreamContext(
     _In_     PLARGE_INTEGER      RemoteFileSize,
     _In_     PUNICODE_STRING     RemoteFilePath,
     _In_     BOOLEAN             UseCustomHandler,
@@ -104,7 +104,7 @@ LcCreateStreamContext (
 
 _Check_return_
 NTSTATUS
-LcGetStreamContext (
+LcGetStreamContext(
     _In_     PFLT_CALLBACK_DATA  Data,
     _Outptr_ PLC_STREAM_CONTEXT* StreamContext
     );

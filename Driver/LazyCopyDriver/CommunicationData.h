@@ -85,20 +85,15 @@ typedef enum _DRIVER_NOTIFICATION_TYPE
 //------------------------------------------------------------------------
 
 #pragma warning(push)
-#pragma warning(disable:4200)  // Disable warnings for structures with zero length arrays.
+#pragma warning(disable: 4200)  // Disable warnings for structures with zero length arrays.
 
 //
 // Commands are sent from the user-mode client(s) to the minifilter driver.
 //
 typedef struct _DRIVER_COMMAND
 {
-    // Command type.
     DRIVER_COMMAND_TYPE Type;
-
-    // Size of the 'Data' buffer.
     ULONG               DataLength;
-
-    // Buffer containing the actual command data.
     PVOID               Data;
 } DRIVER_COMMAND, *PDRIVER_COMMAND;
 
@@ -107,13 +102,8 @@ typedef struct _DRIVER_COMMAND
 //
 typedef struct _DRIVER_NOTIFICATION
 {
-    // Notification type.
     DRIVER_NOTIFICATION_TYPE Type;
-
-    // Size of the 'Data' buffer.
     ULONG                    DataLength;
-
-    // Buffer containing the actual notification data.
     PVOID                    Data;
 } DRIVER_NOTIFICATION, *PDRIVER_NOTIFICATION;
 
@@ -206,7 +196,6 @@ typedef struct _FILE_OPEN_NOTIFICATION_REPLY
 //
 typedef struct _FILE_CLOSE_NOTIFICATION_DATA
 {
-    // Handle to be closed.
     HANDLE FileHandle;
 } FILE_CLOSE_NOTIFICATION_DATA, *PFILE_CLOSE_NOTIFICATION_DATA;
 

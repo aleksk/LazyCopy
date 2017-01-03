@@ -75,6 +75,7 @@ Environment:
 // Win7 supports new ECPs.
 // Vista supports transactions, older ECPs.
 
+#define PLATFORM_WIN10     (NTDDI_VERSIOn >= NTDDI_WIN10)
 #define PLATFORM_WIN8      (NTDDI_VERSION >= NTDDI_WIN8)
 #define PLATFORM_WIN7      (NTDDI_VERSION >= NTDDI_WIN7)
 #define PLATFORM_VISTA     (NTDDI_VERSION >= NTDDI_VISTA)
@@ -103,7 +104,7 @@ Environment:
 // Reparse point data.
 //
 
-// TODO: Before going to production, make sure to contact Microsoft to register this value.
+// TODO: Before releasing your driver, make sure to contact Microsoft to register this value.
 #define LC_REPARSE_TAG  (0x00000340)
 
 extern GUID LC_REPARSE_GUID;

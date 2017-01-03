@@ -73,7 +73,7 @@ typedef enum _DRIVER_OPERATION_MODE
 } DRIVER_OPERATION_MODE, *PDRIVER_OPERATION_MODE;
 
 //------------------------------------------------------------------------
-//  Function declarations.
+//  Function prototypes.
 //------------------------------------------------------------------------
 
 //
@@ -82,13 +82,12 @@ typedef enum _DRIVER_OPERATION_MODE
 
 _Check_return_
 NTSTATUS
-LcInitializeConfiguration (
+LcInitializeConfiguration(
     _In_ PCUNICODE_STRING RegistryPath
     );
 
 VOID
-LcFreeConfiguration (
-    );
+LcFreeConfiguration();
 
 //
 //  Registry access functions.
@@ -96,8 +95,7 @@ LcFreeConfiguration (
 
 _Check_return_
 NTSTATUS
-LcReadConfigurationFromRegistry (
-    );
+LcReadConfigurationFromRegistry();
 
 //
 //  Trusted processes management functions.
@@ -105,24 +103,23 @@ LcReadConfigurationFromRegistry (
 
 _Check_return_
 NTSTATUS
-LcAddTrustedProcess (
+LcAddTrustedProcess(
     _In_ HANDLE ProcessId
     );
 
 VOID
-LcRemoveTrustedProcess (
+LcRemoveTrustedProcess(
     _In_ HANDLE ProcessId
     );
 
 _Check_return_
 BOOLEAN
-LcIsProcessTrusted (
+LcIsProcessTrusted(
     _In_ HANDLE ProcessId
     );
 
 VOID
-LcClearTrustedProcesses (
-    );
+LcClearTrustedProcesses();
 
 //
 //  Paths to watch management functions.
@@ -130,46 +127,44 @@ LcClearTrustedProcesses (
 
 _Check_return_
 NTSTATUS
-LcAddPathToWatch (
+LcAddPathToWatch(
     _In_ PCUNICODE_STRING Path
     );
 
 _Check_return_
 BOOLEAN
-LcIsPathWatched (
+LcIsPathWatched(
     _In_ PCUNICODE_STRING Path
     );
 
 VOID
-LcClearPathsToWatch (
-    );
+LcClearPathsToWatch();
 
 //
 //  Operation mode management functions.
 //
 
 VOID
-LcSetOperationMode (
+LcSetOperationMode(
     _In_ DRIVER_OPERATION_MODE Value
     );
 
 _Check_return_
 DRIVER_OPERATION_MODE
-LcGetOperationMode (
-    );
+LcGetOperationMode();
 
 //
 //  Report rate management functions.
 //
 
 VOID
-LcSetReportRate (
+LcSetReportRate(
     _In_ ULONG Value
     );
 
 _Check_return_
 ULONG
-LcGetReportRateForPath (
+LcGetReportRateForPath(
     _In_ PCUNICODE_STRING Path
     );
 

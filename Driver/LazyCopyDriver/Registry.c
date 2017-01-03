@@ -28,7 +28,7 @@ Module Name:
 
 Abstract:
 
-    Contains Registry helper function definitions.
+    Contains Registry helper functions.
 
 Environment:
 
@@ -59,7 +59,7 @@ Environment:
 
 _Check_return_
 NTSTATUS
-LcGetRegistryValue (
+LcGetRegistryValue(
     _In_     PUNICODE_STRING                 RegistryPath,
     _In_     PUNICODE_STRING                 RegistryValueName,
     _Outptr_ PKEY_VALUE_PARTIAL_INFORMATION* ValueBuffer
@@ -144,9 +144,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcGetRegistryValueDWord (
+LcGetRegistryValueDWord(
     _In_  PUNICODE_STRING RegistryPath,
     _In_  PUNICODE_STRING RegistryValueName,
     _Out_ PULONG          Value
@@ -199,9 +201,11 @@ Return value:
     return status;
 }
 
+//------------------------------------------------------------------------
+
 _Check_return_
 NTSTATUS
-LcGetRegistryValueString (
+LcGetRegistryValueString(
     _In_  PUNICODE_STRING RegistryPath,
     _In_  PUNICODE_STRING RegistryValueName,
     _Out_ PUNICODE_STRING Value

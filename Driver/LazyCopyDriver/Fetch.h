@@ -40,7 +40,6 @@ Environment:
 #ifndef __LAZY_COPY_FETCH_H__
 #define __LAZY_COPY_FETCH_H__
 
-
 //------------------------------------------------------------------------
 //  Includes.
 //------------------------------------------------------------------------
@@ -48,13 +47,13 @@ Environment:
 #include "Globals.h"
 
 //------------------------------------------------------------------------
-//  Fetch function prototype declarations.
+//  Fetch function prototypes.
 //------------------------------------------------------------------------
 
 _Check_return_
 _IRQL_requires_(PASSIVE_LEVEL)
 NTSTATUS
-LcFetchRemoteFile (
+LcFetchRemoteFile(
     _In_  PCFLT_RELATED_OBJECTS FltObjects,
     _In_  PUNICODE_STRING       SourceFile,
     _In_  PUNICODE_STRING       TargetFile,
