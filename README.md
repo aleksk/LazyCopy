@@ -37,7 +37,7 @@ Compilation
 
 1. Make sure you have the latest [WDK](https://developer.microsoft.com/en-us/windows/hardware/windows-driver-kit) installed.
 2. Open the `LazyCopyDriver` project properties, and make sure the `General > Target Platform Version` value corresponds to the WDK version you installed.
-3. (Optionally) Configure driver test signing in the 'Properties > Driver Signing > General`.
+3. (Optionally) Configure driver test signing in the `Properties > Driver Signing > General`.
 4. Make sure the solution is compiled for your architecture (`Main menu > Build > Configuration Manager`).
 
 Driver signing
