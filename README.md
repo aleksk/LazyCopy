@@ -1,11 +1,11 @@
 This minifilter driver ([MSDN](https://msdn.microsoft.com/en-us/library/windows/hardware/ff540402%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396)) intercepts operations on the special reparse point files ([MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365503(v=vs.85).aspx)). If such file is opened for the first time, driver downloads its content from the remote location.
 
-File content can be downloaded from:
-* `Local file`.
+Content can be downloaded from:
+* `Local storage`.
 * `Network share`. If driver cannot open the file, it asks user-mode service to open that file, and then downloads its content.
-* `URL`. Driver asks the user-mode service to download that file.
+* `URI`. Driver asks the user-mode service to download that file.
 
-You can easily extend the user-mode service to add more sources.
+You can easily extend the user-mode service to support more types.
 
 For example, there are two CI servers: `1A` and `2B`. A set of unit tests, running distributed on both these servers, uses `60%` of the build files on `1A`, and `50%` on `2B`.
 It might make sense to have a system that downloads core files needed for everything and creates lazy/empty files for the rest, reducing overall network and storage costs of running tests.
