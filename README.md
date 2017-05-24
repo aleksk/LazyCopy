@@ -7,8 +7,8 @@ Content can be downloaded from:
 
 You can easily extend the user-mode service to support more types.
 
-For example, there are two CI servers: `1A` and `2B`. A set of unit tests, running distributed on both these servers, uses `60%` of the build files on `1A`, and `50%` on `2B`.
-It might make sense to have a system that downloads core files needed for everything and creates lazy/empty files for the rest, reducing overall network and storage costs of running tests.
+Short demo
+-------
 
 ![img](https://github.com/aleksk/LazyCopy/blob/master/demo.gif)
 
