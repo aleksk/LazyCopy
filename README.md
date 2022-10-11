@@ -1,3 +1,5 @@
+Note 10/10/2022: I'll be updating this driver for vs2022 and win11. ETA 1mo.
+
 This minifilter driver ([MSDN](https://msdn.microsoft.com/en-us/library/windows/hardware/ff540402%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396)) intercepts operations on the special reparse point files ([MSDN](https://msdn.microsoft.com/en-us/library/windows/desktop/aa365503(v=vs.85).aspx)). If such file is opened for the first time, driver downloads its content from the remote location.
 
 It's similar to the [Git Virtual File System](https://github.com/Microsoft/GVFS) project from Microsoft. And lacks official support.
